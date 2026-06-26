@@ -8,7 +8,16 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+      <!-- Navbar search -->
+      <div class="nav-search-wrapper d-flex align-items-center me-3 my-2 my-lg-0">
+        <div class="input-group input-group-sm nav-search-group">
+          <span class="input-group-text bg-transparent border-end-0 text-white-50" id="search-icon"><i class="bi bi-search"></i></span>
+          <input class="form-control border-start-0 ps-0 nav-search-input" type="search" id="navbarSearch" placeholder="Cari fasilitas..." aria-label="Search" autocomplete="off">
+        </div>
+        <div class="search-results-dropdown" id="searchResults"></div>
+      </div>
+
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'beranda-user.php' || basename($_SERVER['PHP_SELF']) == '' ? 'active' : '' ?>" href="beranda-user.php">Beranda</a>
         </li>
@@ -18,11 +27,20 @@
         <li class="nav-item">
           <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'lapor-user.php' ? 'active' : '' ?>" href="lapor-user.php">Lapor</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'faq-user.php' ? 'active' : '' ?>" href="faq-user.php">FAQ</a>
+        </li>
       </ul>
-      <form class="d-flex ms-3 d-none d-lg-flex nav-search-form" action="beranda-user.php" method="GET">
-        <input class="form-control me-2" type="search" name="search" placeholder="Cari fasilitas..." aria-label="Search">
-        <button class="btn btn-outline-light" type="submit">Cari</button>
-      </form>
+
+      <!-- Aksi -->
+      <div class="d-flex align-items-center gap-2 ms-lg-3 my-2 my-lg-0">
+        <a href="cetak-laporan.php" class="btn btn-sm btn-outline-light" target="_blank" title="Cetak Laporan Rekap">
+          <i class="bi bi-printer-fill me-1"></i><span class="d-none d-md-inline">Cetak Laporan</span>
+        </a>
+        <button class="btn btn-sm btn-outline-light rounded-circle theme-toggle" id="themeToggle" title="Ganti tema" aria-label="Toggle theme">
+          <i class="bi bi-moon-fill theme-icon" id="themeIcon"></i>
+        </button>
+      </div>
     </div>
   </div>
 </nav>

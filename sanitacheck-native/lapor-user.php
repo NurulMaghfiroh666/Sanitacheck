@@ -4,7 +4,59 @@ require_once 'services/api.php';
 // Semua data dari API / JSON lokal — tidak ada hardcoded mock
 $fasilitas = getFasilitas()['data'];
 $data_keluhan = getKeluhan()['data'];
-$peralatan = getPeralatan()['data'];
+$peralatan_raw = getPeralatan()['data'];
+
+// Map nama peralatan ke Bootstrap Icon sebagai fallback saat API tidak mengembalikan field icon
+$peralatan_icon_map = [
+    'Sapu'               => 'bi-brush-fill',
+    'Pel'                => 'bi-droplet-half',
+    'Mop'                => 'bi-droplet-half',
+    'Vacuum Cleaner'     => 'bi-wind',
+    'Cart'               => 'bi-cart',
+    'Troli'              => 'bi-cart',
+    'Chemical Dispenser' => 'bi-box-seam',
+    'Ember'              => 'bi-bucket',
+    'Kain Lap'           => 'bi-layers',
+    'Sikat'              => 'bi-brush',
+    'Lap'                => 'bi-layers',
+    'Selang'             => 'bi-circle',
+    'Pompa'              => 'bi-arrow-up-circle',
+];
+
+// Pastikan setiap item peralatan memiliki icon
+$peralatan = [];
+foreach ($peralatan_raw as $item) {
+    if (empty($item['icon'])) {
+        // Cari berdasarkan nama exact
+        $item['icon'] = $peralatan_icon_map[$item['nama'] ?? ''] ?? null;
+        // Kalau masih kosong, coba partial match
+        if (!$item['icon']) {
+            foreach ($peralatan_icon_map as $key => $icon) {
+                if (stripos($item['nama'] ?? '', $key) !== false) {
+                    $item['icon'] = $icon;
+                    break;
+                }
+            }
+        }
+        // Ultimate fallback
+        if (!$item['icon']) $item['icon'] = 'bi-tools';
+    }
+    $peralatan[] = $item;
+}
+
+// Map facility name ke icon/color berdasarkan jenisnya
+$fasilitas_lookup = [];
+foreach ($fasilitas as $f) {
+    $fasilitas_lookup[$f['nama']] = $f;
+}
+$icon_jenis_map = [
+    'Toilet' => ['icon' => 'bi-gender-ambiguous', 'color' => 'success'],
+    'Wastafel' => ['icon' => 'bi-droplet', 'color' => 'info'],
+    'Kantin' => ['icon' => 'bi-shop', 'color' => 'warning'],
+    'Lobby' => ['icon' => 'bi-building', 'color' => 'primary'],
+    'Kantor' => ['icon' => 'bi-person-workspace', 'color' => 'secondary'],
+    'Lainnya' => ['icon' => 'bi-chat-dots', 'color' => 'dark'],
+];
 
 // Aktivitas terakhir & riwayat dari data keluhan
 $aktivitas_terakhir = [];
@@ -12,23 +64,26 @@ $riwayat = [];
 $no = 1;
 foreach ($data_keluhan as $k) {
     $status = $k['status'] ?? 'Diajukan';
-    $icon_map = ['bi-building', 'bi-droplet-half', 'bi-trash', 'bi-tools', 'bi-gender-ambiguous', 'bi-shop'];
-    $color_map = ['success', 'danger', 'secondary', 'primary', 'warning', 'info'];
+    $fas_nama = $k['fasilitas_nama'] ?? ($k['nama'] ?? '');
+    $fas_data = $fasilitas_lookup[$fas_nama] ?? null;
+    $jenis = $fas_data['jenis'] ?? 'Lainnya';
+    $icon_data = $icon_jenis_map[$jenis] ?? $icon_jenis_map['Lainnya'];
     $aktivitas_terakhir[] = [
         'no' => $no++,
-        'lokasi' => $k['fasilitas_nama'] ?? ($k['nama'] ?? '-'),
+        'lokasi' => $fas_nama,
         'masalah' => $k['catatan'] ?? '-',
         'tanggal' => date('d M Y', strtotime($k['created_at'] ?? 'now')),
         'status' => $status,
-        'icon' => $icon_map[($no - 1) % count($icon_map)],
-        'color' => $color_map[($no - 1) % count($color_map)],
+        'icon' => $icon_data['icon'],
+        'color' => $icon_data['color'],
     ];
     $riwayat[] = [
         'id' => $k['id_keluhan'] ?? ('ID#' . ($k['id'] ?? 'XXX')),
         'tanggal' => date('d M Y', strtotime($k['created_at'] ?? 'now')),
         'status' => $status,
-        'masalah' => $k['fasilitas_nama'] ?? ($k['nama'] ?? '-'),
-        'resolution' => $k['resolution'] ?? ($status === 'Selesai' ? 'Selesai Penanganan' : 'Diajukan Berinisiatif'),
+        'masalah' => $k['catatan'] ?? '-',
+        'fasilitas' => $k['fasilitas_nama'] ?? ($k['nama'] ?? '-'),
+        'resolution' => $k['resolution'] ?? ($status === 'Selesai' ? 'Selesai Penanganan' : '-'),
     ];
 }
 
@@ -63,9 +118,9 @@ foreach ($data_keluhan as $k) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lapor Keluhan - SanitaCheck</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css?v=12">
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; }
         .navbar { background-color: #1a5c38 !important; padding-top: 1rem; padding-bottom: 1rem; }
@@ -467,9 +522,10 @@ foreach ($data_keluhan as $k) {
                     <thead>
                         <tr>
                             <th class="ps-3">No. ID</th>
-                            <th>Tanggal Laporan</th>
+                            <th>Fasilitas</th>
+                            <th>Tanggal</th>
                             <th>Status</th>
-                            <th>Jenis Masalah</th>
+                            <th>Catatan Keluhan</th>
                             <th>Resolution</th>
                         </tr>
                     </thead>
@@ -481,9 +537,10 @@ foreach ($data_keluhan as $k) {
                         ?>
                         <tr>
                             <td class="ps-3 text-muted" style="font-size: 12px;"><?= htmlspecialchars($item['id']) ?></td>
+                            <td class="fw-medium"><?= htmlspecialchars($item['fasilitas']) ?></td>
                             <td><?= $item['tanggal'] ?></td>
                             <td class="<?= $status_class ?>"><?= $item['status'] ?></td>
-                            <td class="fw-medium"><?= htmlspecialchars($item['masalah']) ?></td>
+                            <td style="max-width: 200px;"><?= htmlspecialchars($item['masalah']) ?></td>
                             <td><?= htmlspecialchars($item['resolution']) ?></td>
                         </tr>
                         <?php endforeach; ?>
@@ -495,10 +552,7 @@ foreach ($data_keluhan as $k) {
     </div>
 </div>
 
-<?php include 'components/footer.php'; ?>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/assets/js/app.js"></script>
+<script id="facility-data-store" type="application/json"><?= json_encode($fasilitas, JSON_UNESCAPED_UNICODE) ?></script>
 <script>
 function previewFoto(event) {
     var file = event.target.files[0];
@@ -516,7 +570,6 @@ function previewFoto(event) {
     };
     reader.readAsDataURL(file);
 }
-
 function resetCameraBox() {
     var box = document.getElementById('camera-box');
     var img = box.querySelector('img');
@@ -527,5 +580,4 @@ function resetCameraBox() {
     document.getElementById('foto').value = '';
 }
 </script>
-</body>
-</html>
+<?php include 'components/footer.php'; ?>

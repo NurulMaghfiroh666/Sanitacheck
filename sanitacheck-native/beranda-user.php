@@ -37,11 +37,11 @@ if (empty($masalah_terbanyak)) {
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style.css?v=12">
     <style>
         body {
             font-family: 'Poppins', sans-serif; /* Using Poppins for a more premium modern look */
@@ -655,6 +655,26 @@ if (empty($masalah_terbanyak)) {
                     </a>
                 </div>
                 <div class="col">
+                    <a href="#fasilitas-section" class="category-card" data-filter="status:perhatian">
+                        <div class="cat-icon-box icon-lppm"><i class="bi bi-exclamation-circle"></i></div>
+                        <div>
+                            <div class="cat-title">Perlu Perhatian</div>
+                            <div class="cat-subtitle">Fasilitas yang perlu<br>pemantauan lebih lanjut</div>
+                        </div>
+                        <i class="bi bi-arrow-right cat-arrow"></i>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="#fasilitas-section" class="category-card" data-filter="status:dibersihkan">
+                        <div class="cat-icon-box icon-lobby"><i class="bi bi-droplet"></i></div>
+                        <div>
+                            <div class="cat-title">Perlu Dibersihkan</div>
+                            <div class="cat-subtitle">Fasilitas yang perlu<br>segera dibersihkan</div>
+                        </div>
+                        <i class="bi bi-arrow-right cat-arrow"></i>
+                    </a>
+                </div>
+                <div class="col">
                     <a href="#fasilitas-section" class="category-card" data-filter="status:bersih">
                         <div class="cat-icon-box icon-lobby"><i class="bi bi-check-circle"></i></div>
                         <div>
@@ -701,7 +721,7 @@ if (empty($masalah_terbanyak)) {
                                 elseif ($sl == 'perlu dibersihkan' || $sl == 'perbaikan') { $bc = 'badge-dibersihkan'; }
                                 elseif ($sl == 'buruk' || $sl == 'rusak') { $bc = 'badge-buruk'; }
                             ?>
-                            <tr>
+                            <tr data-jenis="<?= htmlspecialchars(strtolower($item['jenis'] ?? '')) ?>">
                                 <td class="ps-4 fw-medium"><a href="detail-fasilitas-user.php?id=<?= $item['id'] ?? '1' ?>" class="text-decoration-none nama-fasilitas-link"><?= htmlspecialchars($item['nama'] ?? '') ?></a></td>
                                 <td><?= htmlspecialchars($item['lokasi'] ?? '') ?></td>
                                 <td class="text-center"><span class="badge-custom <?= $bc ?>"><?= htmlspecialchars($st) ?></span></td>
@@ -719,10 +739,7 @@ if (empty($masalah_terbanyak)) {
     </div>
 </div>
 
-<?php include 'components/footer.php'; ?>
-
-<!-- Bootstrap 5 JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script id="facility-data-store" type="application/json"><?= json_encode($semua_fasilitas, JSON_UNESCAPED_UNICODE) ?></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Tutup navbar collapse saat klik link (mobile)
@@ -754,12 +771,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 var badge = row.querySelector('.badge-custom');
                 if (badge) {
                     var text = badge.textContent.toLowerCase();
-                    match = text.indexOf(keyword) !== -1;
+                    if (keyword === 'bersih') {
+                        match = text.indexOf('bersih dan') === 0;
+                    } else {
+                        match = text.indexOf(keyword) !== -1;
+                    }
                 }
             } else {
-                var nameCell = row.querySelector('td:first-child');
-                if (nameCell) {
-                    match = nameCell.textContent.toLowerCase().indexOf(keyword) !== -1;
+                var jenis = row.getAttribute('data-jenis');
+                if (jenis && jenis.indexOf(keyword) !== -1) {
+                    match = true;
+                } else {
+                    var nameCell = row.querySelector('td:first-child');
+                    if (nameCell) {
+                        match = nameCell.textContent.toLowerCase().indexOf(keyword) !== -1;
+                    }
                 }
             }
             row.style.display = match ? '' : 'none';
@@ -806,27 +832,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Smooth scroll anchor
-    document.querySelectorAll('a[href^="#"]:not([data-filter])').forEach(function(anchor) {
-        anchor.addEventListener('click', function(e) {
-            var target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                e.preventDefault();
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
-    });
-
     // === ScrollSpy Nav ===
     var sectionFasilitas = document.getElementById('fasilitas-section');
     var navLinks = document.querySelectorAll('.navbar-nav .nav-link');
     
     if (sectionFasilitas) {
+        var fasilitasOffset = sectionFasilitas.getBoundingClientRect().top + window.scrollY - 150;
         window.addEventListener('scroll', function() {
-            var scrollPosition = window.scrollY;
-            var offset = sectionFasilitas.offsetTop - 150; // offset for fixed navbar
-            
-            if (scrollPosition >= offset) {
+            if (window.scrollY >= fasilitasOffset) {
                 navLinks.forEach(function(l) { l.classList.remove('active'); });
                 var fasLink = document.querySelector('.navbar-nav .nav-link[href="#fasilitas-section"]');
                 if (fasLink) fasLink.classList.add('active');
@@ -839,5 +852,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-</body>
-</html>
+<?php include 'components/footer.php'; ?>
