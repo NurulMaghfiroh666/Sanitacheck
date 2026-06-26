@@ -4,7 +4,7 @@ require_once 'services/api.php';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($id === 0) {
-    header("Location: fasilitas-user.php");
+    header("Location: beranda-user.php#fasilitas-section");
     exit;
 }
 
@@ -54,7 +54,29 @@ $checklist = [
     <title>Detail Fasilitas - SanitaCheck</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .navbar { background-color: #1a5c38 !important; padding-top: 1rem; padding-bottom: 1rem; }
+        .navbar-nav .nav-link { color: rgba(255,255,255,0.7) !important; font-weight: 500; margin-left: 1rem; font-size: 0.95rem; }
+        .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover { color: #fff !important; font-weight: 600; }
+        .breadcrumb a:hover { text-decoration: underline !important; }
+
+        @media (max-width: 768px) {
+            .container.my-5 { padding-top: 70px !important; }
+            .breadcrumb { font-size: 12px; }
+            h4.fw-bold { font-size: 1.1rem; }
+            .table { font-size: 12px; }
+            .table th, .table td { white-space: nowrap; padding: 8px 6px !important; }
+        }
+        @media (max-width: 576px) {
+            .container.my-5 { padding-top: 60px !important; }
+            h4.fw-bold { font-size: 1rem; }
+            .card-body { padding: 1rem; }
+            .row.g-4 > .col-lg-4, .row.g-4 > .col-lg-8 { padding-left: 8px; padding-right: 8px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -64,7 +86,7 @@ $checklist = [
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="beranda-user.php" class="text-success text-decoration-none">Beranda</a></li>
-            <li class="breadcrumb-item"><a href="fasilitas-user.php" class="text-success text-decoration-none">Fasilitas</a></li>
+            <li class="breadcrumb-item"><a href="beranda-user.php#fasilitas-section" class="text-success text-decoration-none">Fasilitas</a></li>
             <li class="breadcrumb-item active" aria-current="page"><?= htmlspecialchars($fasilitas['nama']) ?></li>
         </ol>
     </nav>

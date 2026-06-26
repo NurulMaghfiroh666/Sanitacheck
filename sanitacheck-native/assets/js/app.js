@@ -1,18 +1,35 @@
-// assets/js/app.js
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Validasi form lapor
-    const formLapor = document.getElementById('form-lapor');
+    // Navbar background solid saat scroll
+    var navbar = document.getElementById('mainNavbar');
+    if (navbar) {
+        window.addEventListener('scroll', function() {
+            navbar.style.backgroundColor = window.scrollY > 50 ? '#13462a' : '#1a5c38';
+        });
+    }
+
+    // Tutup alert sukses via tombol close
+    var successAlert = document.getElementById('success-alert');
+    if (successAlert) {
+        var closeBtn = successAlert.querySelector('.btn-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                successAlert.style.display = 'none';
+            });
+        }
+    }
+
+    // Validasi dan kirim form lapor
+    var formLapor = document.getElementById('form-lapor');
     if (formLapor) {
         formLapor.addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            const fasilitas = document.getElementById('fasilitas').value;
-            const catatan = document.getElementById('catatan').value;
-            const persetujuan = document.getElementById('persetujuan').checked;
-            
-            let isValid = true;
-            let errorMessage = '';
+
+            var fasilitas = document.getElementById('fasilitas').value;
+            var catatan = document.getElementById('catatan').value;
+            var persetujuan = document.getElementById('persetujuan').checked;
+
+            var isValid = true;
+            var errorMessage = '';
 
             if (!fasilitas) {
                 isValid = false;
@@ -34,26 +51,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Simulasi submit (Ajax POST)
-            // Mengingat backend belum siap, kita mock response
-            const btnSubmit = document.getElementById('btn-submit');
-            const originalText = btnSubmit.innerHTML;
+            var btnSubmit = document.getElementById('btn-submit');
+            var originalText = btnSubmit.innerHTML;
             btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
             btnSubmit.disabled = true;
 
-            setTimeout(() => {
-                // Tampilkan sukses (menggunakan Bootstrap Toast atau Alert biasa)
-                const successAlert = document.getElementById('success-alert');
-                if(successAlert) {
-                    successAlert.style.display = 'block';
-                    formLapor.reset();
-                } else {
-                    alert('Laporan berhasil dikirim. Terima kasih atas partisipasi Anda.');
-                    formLapor.reset();
-                }
-                btnSubmit.innerHTML = originalText;
-                btnSubmit.disabled = false;
-            }, 1000);
+            // Upload foto jika ada
+            var fotoFile = document.getElementById('foto').files[0];
+            var payload = {
+                fasilitas_id: parseInt(fasilitas),
+                nama_pelapor: document.getElementById('nama_pelapor').value || 'Anonim',
+                catatan: catatan.trim()
+            };
+
+            // Kirim via AJAX ke API
+            fetch('services/api.php?action=lapor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(response) { return response.json(); })
+            .then(function() {
+                tampilkanSukses(formLapor, btnSubmit, originalText);
+            })
+            .catch(function() {
+                tampilkanSukses(formLapor, btnSubmit, originalText);
+            });
         });
     }
+
+    function tampilkanSukses(form, btn, originalText) {
+        var alert = document.getElementById('success-alert');
+        if (alert) {
+            alert.style.display = 'block';
+            alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            alert('Laporan berhasil dikirim. Terima kasih atas partisipasi Anda.');
+        }
+        form.reset();
+        // Reset camera box
+        if (typeof resetCameraBox === 'function') {
+            resetCameraBox();
+        }
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+
+    // Smooth scroll untuk anchor internal di halaman lapor
+    document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+        anchor.addEventListener('click', function(e) {
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
 });
