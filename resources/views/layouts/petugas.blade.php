@@ -96,6 +96,14 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+
+        /* Ensure modals always appear above fixed bottom nav */
+        .modal-backdrop {
+            z-index: 1060 !important;
+        }
+        .modal {
+            z-index: 1065 !important;
+        }
     </style>
     @stack('styles')
 </head>
@@ -129,6 +137,9 @@
     <main class="container py-3">
         @yield('content')
     </main>
+
+    <!-- Modals (rendered outside main container for proper z-index) -->
+    @yield('modals')
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">

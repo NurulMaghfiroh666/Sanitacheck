@@ -3,95 +3,106 @@
 @section('title', 'Dashboard Petugas | SanitaCheck')
 
 @section('content')
-<div class="text-center py-4">
-    <div class="mb-3">
-        <i class="bi bi-shield-check text-success" style="font-size: 3rem;"></i>
+<div class="d-flex align-items-center bg-white p-3 rounded-3 shadow-sm mb-3">
+    <div class="flex-shrink-0 bg-success bg-opacity-10 rounded-3 p-2 me-3">
+        <i class="bi bi-shield-check text-success fs-3"></i>
     </div>
-    <h4 class="fw-bold text-dark">Selamat Datang, {{ $petugas->nama_petugas ?? Auth::user()->name }}!</h4>
-    <p class="text-secondary">Panel monitoring inspeksi sanitasi kamu.</p>
-</div>
-
-<div class="row g-3 mb-4">
-    <div class="col-6">
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-            <div class="card-body text-center p-3">
-                <div class="d-flex justify-content-center align-items-center rounded-circle bg-success bg-opacity-10 mx-auto mb-2" style="width: 50px; height: 50px;">
-                    <i class="bi bi-calendar2-check text-success fs-4"></i>
-                </div>
-                <div class="fw-bold fs-3 text-dark">{{ $jadwalHariIni }}</div>
-                <div class="text-secondary small">Jadwal Aktif</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6">
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-            <div class="card-body text-center p-3">
-                <div class="d-flex justify-content-center align-items-center rounded-circle bg-primary bg-opacity-10 mx-auto mb-2" style="width: 50px; height: 50px;">
-                    <i class="bi bi-clipboard-check text-primary fs-4"></i>
-                </div>
-                <div class="fw-bold fs-3 text-dark">{{ $inspeksiSelesai }}</div>
-                <div class="text-secondary small">Total Inspeksi</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6">
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-            <div class="card-body text-center p-3">
-                <div class="d-flex justify-content-center align-items-center rounded-circle bg-warning bg-opacity-10 mx-auto mb-2" style="width: 50px; height: 50px;">
-                    <i class="bi bi-hourglass-split text-warning fs-4"></i>
-                </div>
-                <div class="fw-bold fs-3 text-dark">{{ $jadwalMenunggu }}</div>
-                <div class="text-secondary small">Jadwal Menunggu</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6">
-        <div class="card border-0 shadow-sm" style="border-radius: 15px;">
-            <div class="card-body text-center p-3">
-                <div class="d-flex justify-content-center align-items-center rounded-circle mx-auto mb-2" style="width: 50px; height: 50px; background-color: rgba(25, 135, 84, 0.1);">
-                    <i class="bi bi-check-circle text-success fs-4"></i>
-                </div>
-                <div class="fw-bold fs-3 text-dark">{{ $jadwalSelesai }}</div>
-                <div class="text-secondary small">Jadwal Selesai</div>
-            </div>
-        </div>
+    <div>
+        <h6 class="fw-bold text-dark mb-0" style="font-size: 1rem;">Selamat Datang, {{ $petugas->nama_petugas ?? Auth::user()->name }}!</h6>
+        <p class="text-secondary mb-0 small" style="font-size: 0.75rem;">Panel monitoring inspeksi sanitasi kamu.</p>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm mb-3" style="border-radius: 15px;">
+<div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+            <div class="card-body p-2 d-flex align-items-center">
+                <div class="d-flex justify-content-center align-items-center rounded-circle bg-success bg-opacity-10 me-2" style="width: 35px; height: 35px; flex-shrink: 0;">
+                    <i class="bi bi-calendar2-check text-success fs-6"></i>
+                </div>
+                <div class="text-truncate">
+                    <div class="fw-bold text-dark lh-1" style="font-size: 1.1rem;">{{ $jadwalHariIni }}</div>
+                    <span class="text-secondary" style="font-size: 0.7rem;">Jadwal Aktif</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+            <div class="card-body p-2 d-flex align-items-center">
+                <div class="d-flex justify-content-center align-items-center rounded-circle bg-primary bg-opacity-10 me-2" style="width: 35px; height: 35px; flex-shrink: 0;">
+                    <i class="bi bi-clipboard-check text-primary fs-6"></i>
+                </div>
+                <div class="text-truncate">
+                    <div class="fw-bold text-dark lh-1" style="font-size: 1.1rem;">{{ $inspeksiSelesai }}</div>
+                    <span class="text-secondary" style="font-size: 0.7rem;">Total Inspeksi</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+            <div class="card-body p-2 d-flex align-items-center">
+                <div class="d-flex justify-content-center align-items-center rounded-circle bg-warning bg-opacity-10 me-2" style="width: 35px; height: 35px; flex-shrink: 0;">
+                    <i class="bi bi-hourglass-split text-warning fs-6"></i>
+                </div>
+                <div class="text-truncate">
+                    <div class="fw-bold text-dark lh-1" style="font-size: 1.1rem;">{{ $jadwalMenunggu }}</div>
+                    <span class="text-secondary" style="font-size: 0.7rem;">Menunggu</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm" style="border-radius: 10px;">
+            <div class="card-body p-2 d-flex align-items-center">
+                <div class="d-flex justify-content-center align-items-center rounded-circle me-2" style="width: 35px; height: 35px; flex-shrink: 0; background-color: rgba(25, 135, 84, 0.1);">
+                    <i class="bi bi-check-circle text-success fs-6"></i>
+                </div>
+                <div class="text-truncate">
+                    <div class="fw-bold text-dark lh-1" style="font-size: 1.1rem;">{{ $jadwalSelesai }}</div>
+                    <span class="text-secondary" style="font-size: 0.7rem;">Selesai</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3" style="border-radius: 12px;">
     <div class="card-body p-3">
-        <h6 class="fw-bold text-dark mb-3"><i class="bi bi-calendar3 text-success me-2"></i>Jadwal Inspeksi Terbaru</h6>
+        <h6 class="fw-bold text-dark mb-2" style="font-size: 0.85rem;"><i class="bi bi-calendar3 text-success me-2"></i>Jadwal Inspeksi Terbaru</h6>
+        
         @if($jadwalTerbaru->isEmpty())
         <div class="text-center py-3">
-            <p class="text-secondary mb-0 small">Belum ada jadwal inspeksi.</p>
+            <p class="text-secondary mb-0 small" style="font-size: 0.75rem;">Belum ada jadwal inspeksi.</p>
         </div>
         @else
         <div class="d-flex flex-column gap-2">
             @foreach($jadwalTerbaru as $jadwal)
-            <div class="border rounded p-3" style="border-radius: 10px;">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
-                        <div class="fw-bold text-dark">{{ $jadwal->jenis_tugas }}</div>
-                        <div class="text-secondary small">
-                            <i class="bi bi-building me-1"></i>{{ $jadwal->fasilitas->nama_fasilitas ?? '-' }}
-                        </div>
-                        <div class="text-secondary small">
-                            <i class="bi bi-geo-alt me-1"></i>{{ $jadwal->fasilitas->lokasi ?? '-' }}
+            <div class="border rounded p-2" style="border-radius: 8px; background-color: #fafafa;">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                    <div class="text-truncate">
+                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.8rem;">{{ $jadwal->jenis_tugas }}</div>
+                        <div class="text-secondary text-truncate" style="font-size: 0.75rem;">
+                            <i class="bi bi-building me-1"></i>{{ $jadwal->fasilitas->nama_fasilitas ?? '-' }} 
+                            <span class="text-muted">({{ $jadwal->fasilitas->lokasi ?? '-' }})</span>
                         </div>
                     </div>
-                    @if($jadwal->status == 'Menunggu')
-                    <span class="badge bg-secondary" style="font-size: 0.7rem;">Menunggu</span>
-                    @elseif($jadwal->status == 'Berlangsung')
-                    <span class="badge bg-primary" style="font-size: 0.7rem;">Berlangsung</span>
-                    @elseif($jadwal->status == 'Selesai')
-                    <span class="badge bg-success" style="font-size: 0.7rem;">Selesai</span>
-                    @elseif($jadwal->status == 'Dibatalkan')
-                    <span class="badge bg-danger" style="font-size: 0.7rem;">Dibatalkan</span>
-                    @endif
+                    <div class="flex-shrink-0">
+                        @if($jadwal->status == 'Menunggu')
+                        <span class="badge bg-secondary" style="font-size: 0.6rem; padding: 0.2em 0.4em;">Menunggu</span>
+                        @elseif($jadwal->status == 'Berlangsung')
+                        <span class="badge bg-primary" style="font-size: 0.6rem; padding: 0.2em 0.4em;">Berlangsung</span>
+                        @elseif($jadwal->status == 'Selesai')
+                        <span class="badge bg-success" style="font-size: 0.6rem; padding: 0.2em 0.4em;">Selesai</span>
+                        @elseif($jadwal->status == 'Dibatalkan')
+                        <span class="badge bg-danger" style="font-size: 0.6rem; padding: 0.2em 0.4em;">Dibatalkan</span>
+                        @endif
+                    </div>
                 </div>
-                <div class="d-flex justify-content-between small text-secondary">
-                    <span><i class="bi bi-calendar me-1"></i>{{ $jadwal->tanggal_mulai ? $jadwal->tanggal_mulai->format('d/m/Y') : '-' }} - {{ $jadwal->tanggal_selesai ? $jadwal->tanggal_selesai->format('d/m/Y') : '-' }}</span>
-                    <a href="{{ route('petugas.jadwal') }}" class="text-success fw-semibold">Lihat Detail</a>
+                <div class="d-flex justify-content-between align-items-center border-top pt-1 mt-1" style="font-size: 0.7rem;">
+                    <span class="text-secondary"><i class="bi bi-calendar me-1"></i>{{ $jadwal->tanggal_mulai ? $jadwal->tanggal_mulai->format('d/m/Y') : '-' }} - {{ $jadwal->tanggal_selesai ? $jadwal->tanggal_selesai->format('d/m/Y') : '-' }}</span>
+                    <a href="{{ route('petugas.jadwal') }}" class="text-success fw-semibold text-decoration-none">Detail <i class="bi bi-chevron-right small"></i></a>
                 </div>
             </div>
             @endforeach
@@ -100,10 +111,10 @@
     </div>
 </div>
 
-<div class="card border-0 shadow-sm" style="border-radius: 15px;">
-    <div class="card-body p-3 text-center">
-        <p class="text-secondary mb-0 small">
-            <i class="bi bi-info-circle me-1"></i> Pilih menu <strong>Jadwal</strong> di bawah untuk melihat semua jadwal inspeksi.
+<div class="card border-0 shadow-sm" style="border-radius: 10px;">
+    <div class="card-body p-2 text-center" style="background-color: #fcfcfc; border-radius: 10px;">
+        <p class="text-secondary mb-0" style="font-size: 0.75rem;">
+            <i class="bi bi-info-circle me-1 text-success"></i> Pilih menu <strong>Jadwal</strong> untuk melihat semua data.
         </p>
     </div>
 </div>
