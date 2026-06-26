@@ -206,15 +206,11 @@
                                         <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm-80-224c0-17.67 14.33-32 32-32s32 14.33 32 32-14.33 32-32 32-32-14.33-32-32zm96 0c0-17.67 14.33-32 32-32s32 14.33 32 32-14.33 32-32 32-32-14.33-32-32z"/>
                                     </svg>
                                 </a>
-                                <form action="{{ route('jadwal-petugas.destroy', $jadwal->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-light" style="border-radius: 6px; padding: 0.3rem 0.6rem;" title="Hapus">
-                                        <svg style="width: 16px; height: 16px; color: #dc3545;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                            <path fill="currentColor" d="M112 48v48h288V48H112zm0 416h288V128H112v336zm48-240h192v32H160V224zm0 80h192v32H160V304z"/>
-                                        </svg>
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-sm btn-light" style="border-radius: 6px; padding: 0.3rem 0.6rem;" title="Hapus" onclick="confirmDelete('{{ route('jadwal-petugas.destroy', $jadwal->id) }}')">
+                                    <svg style="width: 16px; height: 16px; color: #dc3545;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                        <path fill="currentColor" d="M112 48v48h288V48H112zm0 416h288V128H112v336zm48-240h192v32H160V224zm0 80h192v32H160V304z"/>
+                                    </svg>
+                                </button>
                             </div>
                         </td>
                     </tr>

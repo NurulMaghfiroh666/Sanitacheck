@@ -3,11 +3,16 @@
 @section('title', 'Fasilitas Umum')
 
 @section('content')
-<div class="mb-2 d-flex justify-content-between align-items-center">
+<div class="mb-2 d-flex justify-content-between align-items-center border-bottom pb-1">
     <div>
-        <h4 class="fw-bold mb-0" style="color: #1b5e3a;">Fasilitas Umum</h4>
-        <p class="text-body-secondary mb-0 small">Fasilitas Umum ITSK RS dr. Soepraoen Kesdam V/BRW Malang</p>
+        <h5 class="fw-bold mb-0" style="color: #1b5e3a;">Fasilitas Umum</h5>
+        <div class="text-body-secondary mt-1" style="font-size: 0.75rem;">
+            <span>Fasilitas Umum ITSK RS dr. Soepraoen Kesdam V/BRW Malang</span>
+        </div>
     </div>
+    <button type="button" class="btn btn-success text-white fw-bold shadow-sm px-2 py-1 d-flex align-items-center" data-coreui-toggle="modal" data-coreui-target="#addFasilitasModal" style="border-radius: 4px; background-color: #1b5e3a; border-color: #1b5e3a; font-size: 0.75rem;">
+        + Fasilitas
+    </button>
 </div>
 
 @if(session('success'))
@@ -28,55 +33,37 @@
 </div>
 @endif
 
-<div class="card mb-2 border shadow-sm" style="border-radius: 10px;">
+<div class="card mb-2 border shadow-sm" style="border-radius: 8px;">
     <div class="card-body p-2">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-            <div class="d-flex flex-wrap gap-2">
-                <div class="d-flex align-items-center p-1d5 border rounded bg-adaptive-stat" style="border-color: var(--cui-border-color, var(--bs-border-color)) !important; border-radius: 8px !important; min-width: 170px;">
-                    <div class="bg-success text-white me-2 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 6px; width: 36px; height: 36px; min-width: 36px;">
-                        <svg class="icon" style="width: 18px; height: 18px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                            <path fill="currentColor" d="M334.627 16H48v480h424V153.373ZM440 166.627V168H320V48h1.373ZM80 464V48h208v152h152v264Z"/>
-                            <path fill="currentColor" d="M136 296h224v32H136zm0 80h224v32H136z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="text-success fw-bold lh-sm small">Total Fasilitas</div>
-                        <div class="fw-bold text-success" style="font-size: 1.25rem; line-height: 1;">{{ $totalFasilitas }}</div>
-                        <div class="text-body-secondary extra-small">Semua fasilitas</div>
-                    </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <div class="d-flex align-items-center p-1 border rounded bg-adaptive-stat flex-grow-1" style="border-color: var(--cui-border-color, var(--bs-border-color)) !important; border-radius: 6px !important;">
+                <div class="bg-success text-white me-2 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 4px; width: 32px; height: 32px; min-width: 32px;">
+                    <svg class="icon" style="width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M334.627 16H48v480h424V153.373ZM440 166.627V168H320V48h1.373ZM80 464V48h208v152h152v264Z"/><path fill="currentColor" d="M136 296h224v32H136zm0 80h224v32H136z"/></svg>
                 </div>
-                
-                <div class="d-flex align-items-center p-1d5 border rounded bg-adaptive-stat" style="border-color: var(--cui-border-color, var(--bs-border-color)) !important; border-radius: 8px !important; min-width: 170px;">
-                    <div class="bg-primary text-white me-2 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 6px; width: 36px; height: 36px; min-width: 36px;">
-                        <svg class="icon" style="width: 18px; height: 18px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                            <path fill="currentColor" d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48Zm108.25 138.29-134.4 160a16 16 0 0 1-23.35 1.14l-80-80a16 16 0 0 1 22.62-22.62l67.24 67.24 123.36-146.85a16 16 0 0 1 24.53 21.09Z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="text-success fw-bold lh-sm small">Aktif</div>
-                        <div class="fw-bold text-success" style="font-size: 1.25rem; line-height: 1;">{{ $aktifFasilitas }}</div>
-                        <div class="text-body-secondary extra-small">Fasilitas Aktif</div>
-                    </div>
-                </div>
-                
-                <div class="d-flex align-items-center p-1d5 border rounded bg-adaptive-stat" style="border-color: var(--cui-border-color, var(--bs-border-color)) !important; border-radius: 8px !important; min-width: 170px;">
-                    <div class="bg-warning text-white me-2 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 6px; width: 36px; height: 36px; min-width: 36px;">
-                        <svg class="icon" style="width: 18px; height: 18px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                            <path fill="currentColor" d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48Zm-32 272a16 16 0 0 1-32 0V192a16 16 0 0 1 32 0Zm96 0a16 16 0 0 1-32 0V192a16 16 0 0 1 32 0Z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="text-success fw-bold lh-sm small">Tidak Aktif</div>
-                        <div class="fw-bold text-success" style="font-size: 1.25rem; line-height: 1;">{{ $tidakAktifFasilitas }}</div>
-                        <div class="text-body-secondary extra-small">Fasilitas Tidak Aktif</div>
-                    </div>
+                <div>
+                    <div class="text-success fw-bold lh-sm" style="font-size: 0.7rem;">Total Fasilitas</div>
+                    <div class="fw-bold text-success" style="font-size: 1.1rem; line-height: 1;">{{ $totalFasilitas }}</div>
                 </div>
             </div>
             
-            <div class="ms-md-auto align-self-center">
-                <button type="button" class="btn btn-success text-white fw-bold shadow-sm py-1d5 px-3" data-coreui-toggle="modal" data-coreui-target="#addFasilitasModal" style="border-radius: 6px; background-color: #1b5e3a; border-color: #1b5e3a; font-size: 0.8rem;">
-                    + Tambah Fasilitas / Jadwal
-                </button>
+            <div class="d-flex align-items-center p-1 border rounded bg-adaptive-stat flex-grow-1" style="border-color: var(--cui-border-color, var(--bs-border-color)) !important; border-radius: 6px !important;">
+                <div class="bg-primary text-white me-2 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 4px; width: 32px; height: 32px; min-width: 32px;">
+                    <svg class="icon" style="width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48Zm108.25 138.29-134.4 160a16 16 0 0 1-23.35 1.14l-80-80a16 16 0 0 1 22.62-22.62l67.24 67.24 123.36-146.85a16 16 0 0 1 24.53 21.09Z" /></svg>
+                </div>
+                <div>
+                    <div class="text-success fw-bold lh-sm" style="font-size: 0.7rem;">Aktif</div>
+                    <div class="fw-bold text-success" style="font-size: 1.1rem; line-height: 1;">{{ $aktifFasilitas }}</div>
+                </div>
+            </div>
+            
+            <div class="d-flex align-items-center p-1 border rounded bg-adaptive-stat flex-grow-1" style="border-color: var(--cui-border-color, var(--bs-border-color)) !important; border-radius: 6px !important;">
+                <div class="bg-warning text-white me-2 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 4px; width: 32px; height: 32px; min-width: 32px;">
+                    <svg class="icon" style="width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48Zm-32 272a16 16 0 0 1-32 0V192a16 16 0 0 1 32 0Zm96 0a16 16 0 0 1-32 0V192a16 16 0 0 1 32 0Z" /></svg>
+                </div>
+                <div>
+                    <div class="text-success fw-bold lh-sm" style="font-size: 0.7rem;">Tidak Aktif</div>
+                    <div class="fw-bold text-success" style="font-size: 1.1rem; line-height: 1;">{{ $tidakAktifFasilitas }}</div>
+                </div>
             </div>
         </div>
     </div>
@@ -124,48 +111,46 @@
     </div>
 </div>
 
-<div class="card border shadow-sm" style="border-radius: 10px; min-height: 200px;">
+<div class="card border shadow-sm mb-3" style="border-radius: 8px;">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-borderless table-hover align-middle mb-0" style="font-size: 0.825rem;">
+            <table class="table table-sm table-borderless table-hover align-middle mb-0" style="font-size: 0.75rem;">
                 <thead style="border-bottom: 1px solid var(--cui-border-color, var(--bs-border-color)); background-color: var(--cui-tertiary-bg, var(--bs-tertiary-bg));">
                     <tr>
-                        <th class="text-center text-success py-1d5 px-2" style="width: 50px;">No</th>
-                        <th class="text-success py-1d5">Nama Fasilitas</th>
-                        <th class="text-success py-1d5">Jenis Fasilitas</th>
-                        <th class="text-success py-1d5">Lokasi</th>
-                        <th class="text-success py-1d5">Penanggung Jawab</th>
-                        <th class="text-center text-success py-1d5" style="width: 100px;">Status</th>
-                        <th class="text-center text-success py-1d5 px-2" style="width: 90px;">Aksi</th>
+                        <th class="text-center text-success py-1 px-2" style="width: 40px;">No</th>
+                        <th class="text-success py-1">Fasilitas & Jenis</th>
+                        <th class="text-success py-1">Lokasi & PJ</th>
+                        <th class="text-center text-success py-1" style="width: 80px;">Status</th>
+                        <th class="text-center text-success py-1 px-2" style="width: 80px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($fasilitas as $index => $item)
-                    <tr>
-                        <td class="text-center py-2">{{ $fasilitas->firstItem() + $index }}</td>
-                        <td class="py-2 fw-semibold">{{ $item->nama_fasilitas }}</td>
-                        <td class="py-2 text-capitalize">{{ $item->jenis_fasilitas }}</td>
-                        <td class="py-2">{{ $item->lokasi }}</td>
-                        <td class="py-2">{{ $item->penanggung_jawab }}</td>
-                        <td class="text-center py-2">
+                    <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                        <td class="text-center text-body-secondary py-1 px-2">{{ $fasilitas->firstItem() + $index }}</td>
+                        <td class="py-1">
+                            <div class="fw-bold text-truncate" style="max-width: 150px; color: #333;">{{ $item->nama_fasilitas }}</div>
+                            <div class="text-body-secondary text-capitalize text-truncate" style="max-width: 150px; font-size: 0.7rem;">{{ $item->jenis_fasilitas }}</div>
+                        </td>
+                        <td class="py-1">
+                            <div class="fw-semibold text-truncate" style="max-width: 150px; color: #333;">{{ $item->lokasi }}</div>
+                            <div class="text-body-secondary text-truncate" style="max-width: 150px; font-size: 0.7rem;"><i class="bi bi-person me-1"></i>{{ $item->penanggung_jawab }}</div>
+                        </td>
+                        <td class="text-center py-1">
                             @if($item->status_aktif)
-                                <span class="badge bg-success">Aktif</span>
+                                <span class="badge bg-success bg-opacity-10 text-success fw-normal" style="font-size: 0.7rem;">Aktif</span>
                             @else
-                                <span class="badge bg-warning text-dark">Tidak Aktif</span>
+                                <span class="badge bg-warning bg-opacity-10 text-warning fw-normal" style="font-size: 0.7rem;">Tidak Aktif</span>
                             @endif
                         </td>
-                        <td class="text-center py-2">
-                            <div class="d-flex justify-content-center gap-1">
-                                <button type="button" class="btn btn-sm btn-outline-primary border-0 p-1" data-coreui-toggle="modal" data-coreui-target="#editFasilitasModal{{ $item->id }}" title="Edit">
-                                    <svg style="width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M490.3 40.4C512.2 62.27 512.2 97.73 490.3 119.6L460.3 149.7L362.3 51.72L392.4 21.66C414.3-.2135 449.7-.2135 471.6 21.66L490.3 40.4zM172.4 241.7L339.7 74.34L437.7 172.3L270.3 339.6C264.2 345.8 256.7 350.4 248.4 353.2L159.6 382.8C150.1 385.6 141.5 383.4 135 376.1C128.6 370.5 126.4 361 129.2 352.4L158.8 263.6C161.6 255.3 166.2 247.8 172.4 241.7zM96 64C42.98 64 0 106.1 0 160V416C0 469 42.98 512 96 512H352C405 512 448 469 448 416V288C448 270.3 433.7 256 416 256C398.3 256 384 270.3 384 288V416C384 433.7 369.7 448 352 448H96C78.33 448 64 433.7 64 416V160C64 142.3 78.33 128 96 128H224C241.7 128 256 113.7 256 96C256 78.33 241.7 64 224 64H96z"/></svg>
+                        <td class="text-center py-1 px-2">
+                            <div class="btn-group btn-group-sm shadow-sm" role="group">
+                                <button type="button" class="btn btn-light border p-1" data-coreui-toggle="modal" data-coreui-target="#editFasilitasModal{{ $item->id }}" title="Edit">
+                                    <svg style="width: 12px; height: 12px; color: #0d6efd;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 5.4 506.5s12.5 12.3 21.2 12.3h120.3c10.9 0 21.4-4.3 29.2-12l233.4-233.4L291.7 90.3z"/></svg>
                                 </button>
-                                <form action="{{ route('fasilitas.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-1" title="Hapus">
-                                        <svg style="width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M112 112l20 320c.95 18.49 14.4 32 32 32h184c17.67 0 30.87-13.51 32-32l20-320H112zm280 0v32h24a24 24 0 0 0 0-48H160a24 24 0 0 0 0 48h24v-32H80v-32h352v32z"/></svg>
-                                    </button>
-                                </form>
+                                <button type="button" class="btn btn-light border p-1" title="Hapus" onclick="confirmDelete('{{ route('fasilitas.destroy', $item->id) }}')">
+                                    <svg style="width: 12px; height: 12px; color: #dc3545;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.4 467c1.6 25.3 22.6 45 47.9 45H346.7c25.3 0 46.3-19.7 47.9-45L416 128z"/></svg>
+                                </button>
                             </div>
                         </td>
                     </tr>

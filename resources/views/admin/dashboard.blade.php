@@ -3,78 +3,78 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="mb-3">
-    <h3 class="fw-bold mb-1" style="color: #1b5e3a;">Dashboard</h3>
-    <p class="text-body-secondary" style="font-size: 0.9rem;">Selamat datang, Admin! Berikut ringkasan monitoring sanitasi hari ini.</p>
+<div class="mb-2">
+    <h4 class="fw-bold mb-1" style="color: #1b5e3a;">Dashboard</h4>
+    <p class="text-body-secondary mb-0" style="font-size: 0.8rem;">Selamat datang, Admin! Berikut ringkasan monitoring sanitasi hari ini.</p>
 </div>
 
 <!-- Stats Widgets -->
-<div class="row mb-3">
+<div class="row g-2 mb-2">
     <div class="col-sm-6 col-lg-3">
-        <div class="card mb-3 mb-xl-0 border shadow-sm" style="border-radius: 10px;">
+        <div class="card border shadow-sm" style="border-radius: 8px;">
             <div class="card-body p-2 d-flex align-items-center">
-                <div class="bg-success text-white me-3 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 8px; width: 48px; height: 48px;">
+                <div class="bg-success text-white me-2 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 6px; width: 40px; height: 40px;">
                     <svg class="icon" style="width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                         <path fill="currentColor" d="M334.627 16H48v480h424V153.373ZM440 166.627V168H320V48h1.373ZM80 464V48h208v152h152v264Z"/>
                         <path fill="currentColor" d="M136 296h224v32H136zm0 80h224v32H136z"/>
                     </svg>
                 </div>
                 <div>
-                    <div class="text-success fw-bold" style="font-size: 0.8rem;">Total Fasilitas</div>
-                    <div class="fw-bold text-success" style="font-size: 1.5rem; line-height: 1;">{{ $totalFasilitas }}</div>
-                    <div class="text-body-secondary" style="font-size: 0.7rem;">Semua fasilitas terdaftar</div>
+                    <div class="text-success fw-bold" style="font-size: 0.75rem;">Total Fasilitas</div>
+                    <div class="fw-bold text-success" style="font-size: 1.25rem; line-height: 1;">{{ $totalFasilitas }}</div>
+                    <div class="text-body-secondary" style="font-size: 0.65rem;">Semua fasilitas terdaftar</div>
                 </div>
             </div>
         </div>
     </div>
     
     <div class="col-sm-6 col-lg-3">
-        <div class="card mb-3 mb-xl-0 border shadow-sm" style="border-radius: 10px;">
+        <div class="card border shadow-sm" style="border-radius: 8px;">
             <div class="card-body p-2 d-flex align-items-center">
-                <div class="me-3 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 8px; width: 48px; height: 48px; border: 1px solid var(--cui-border-color);">
+                <div class="me-2 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 6px; width: 40px; height: 40px; border: 1px solid var(--cui-border-color);">
                     <svg class="icon text-success" style="width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                         <path fill="currentColor" d="M400 464H48V104h192V72H16v424h416V272h-32z" />
                         <path fill="currentColor" d="M304 16v32h137.373L188.687 300.687l22.626 22.626L464 70.627V208h32V16z" />
                     </svg>
                 </div>
                 <div>
-                    <div class="text-success fw-bold" style="font-size: 0.8rem;">Inspeksi Hari Ini</div>
-                    <div class="fw-bold text-success" style="font-size: 1.5rem; line-height: 1;">{{ $inspeksiHariIni }}</div>
-                    <div class="text-body-secondary" style="font-size: 0.7rem;">Total inspeksi hari ini</div>
+                    <div class="text-success fw-bold" style="font-size: 0.75rem;">Inspeksi Hari Ini</div>
+                    <div class="fw-bold text-success" style="font-size: 1.25rem; line-height: 1;">{{ $inspeksiHariIni }}</div>
+                    <div class="text-body-secondary" style="font-size: 0.65rem;">Total inspeksi hari ini</div>
                 </div>
             </div>
         </div>
     </div>
     
     <div class="col-sm-6 col-lg-3">
-        <div class="card mb-3 mb-xl-0 border shadow-sm" style="border-radius: 10px;">
+        <div class="card border shadow-sm" style="border-radius: 8px;">
             <div class="card-body p-2 d-flex align-items-center">
-                <div class="bg-warning text-white me-3 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 8px; width: 48px; height: 48px;">
+                <div class="bg-warning text-white me-2 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 6px; width: 40px; height: 40px;">
                     <svg class="icon" style="width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                         <path fill="currentColor" d="M494 198.671a40.54 40.54 0 0 0-32.174-27.592l-115.909-18.837-53.732-104.414a40.7 40.7 0 0 0-72.37 0l-53.732 104.414-115.907 18.837a40.7 40.7 0 0 0-22.364 68.827l82.7 83.368-17.9 116.055a40.672 40.672 0 0 0 58.548 42.538L256 428.977l104.843 52.89a40.69 40.69 0 0 0 58.548-42.538l-17.9-116.055 82.7-83.368A40.54 40.54 0 0 0 494 198.671m-32.53 18.7L367.4 312.2l20.364 132.01a8.671 8.671 0 0 1-12.509 9.088L256 393.136 136.744 453.3a8.671 8.671 0 0 1-12.509-9.088L144.6 312.2l-94.069-94.83a8.7 8.7 0 0 1 4.778-14.706l131.841-21.426 61.119-118.767a8.694 8.694 0 0 1 15.462 0l61.119 118.767 131.841 21.426a8.7 8.7 0 0 1 4.778 14.706Z" />
                     </svg>
                 </div>
                 <div>
-                    <div class="text-success fw-bold" style="font-size: 0.8rem;">Tindak Lanjut</div>
-                    <div class="fw-bold text-success" style="font-size: 1.5rem; line-height: 1;">{{ count($fasilitasTindakLanjut) }}</div>
-                    <div class="text-body-secondary" style="font-size: 0.7rem;">Perlu perhatian/dibersihkan</div>
+                    <div class="text-success fw-bold" style="font-size: 0.75rem;">Tindak Lanjut</div>
+                    <div class="fw-bold text-success" style="font-size: 1.25rem; line-height: 1;">{{ count($fasilitasTindakLanjut) }}</div>
+                    <div class="text-body-secondary" style="font-size: 0.65rem;">Perlu perhatian/dibersihkan</div>
                 </div>
             </div>
         </div>
     </div>
     
     <div class="col-sm-6 col-lg-3">
-        <div class="card mb-3 mb-xl-0 border shadow-sm" style="border-radius: 10px;">
+        <div class="card border shadow-sm" style="border-radius: 8px;">
             <div class="card-body p-2 d-flex align-items-center">
-                <div class="bg-danger text-white me-3 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 8px; width: 48px; height: 48px;">
+                <div class="bg-danger text-white me-2 d-flex justify-content-center align-items-center shadow-sm" style="border-radius: 6px; width: 40px; height: 40px;">
                     <svg class="icon" style="width: 24px; height: 24px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                         <path fill="currentColor" d="m496.059 182.581-.025-70.7-32 .012.017 48.172-66.288 23.779-45.729.007v-30.964A96.55 96.55 0 0 0 329.92 91.3l43.129-43.413h42.84v-32h-56.157l-53.987 54.344a96.82 96.82 0 0 0-100.511-.554l-53.056-53.84-56.158.05.029 32 42.748-.038L180.824 90.5a96.56 96.56 0 0 0-22.79 62.39v30.99l-43.235.007L48 160.093v-48.172H16v70.742l80.035 28.509.007 84.715H16.034v32h80.01v8.01a159.7 159.7 0 0 0 9.7 54.979l-89.71 34.572v70.439h32v-48.476l71.73-27.642a159.794 159.794 0 0 0 249.578 29.044 161.5 161.5 0 0 0 23.058-29.146l71.638 27.727v48.493h32v-70.421l-89.618-34.685a159.2 159.2 0 0 0 9.614-55.1v-7.794h80v-32h-80v-84.6ZM240 463.029C176.991 455.235 128.045 401.2 128.045 335.9l-.01-120.011h30v.007H240Zm-49.966-279.154v-30.988a65 65 0 0 1 130 0v30.968Zm194 151.849A128.28 128.28 0 0 1 272 462.979V215.887h80.032v-.036h32Z" />
                     </svg>
                 </div>
                 <div>
-                    <div class="text-success fw-bold" style="font-size: 0.8rem;">Fasilitas Buruk</div>
-                    <div class="fw-bold text-success" style="font-size: 1.5rem; line-height: 1;">{{ $fasilitasBurukCount }}</div>
-                    <div class="text-body-secondary" style="font-size: 0.7rem;">Kondisi sanitasi buruk</div>
+                    <div class="text-success fw-bold" style="font-size: 0.75rem;">Fasilitas Buruk</div>
+                    <div class="fw-bold text-success" style="font-size: 1.25rem; line-height: 1;">{{ $fasilitasBurukCount }}</div>
+                    <div class="text-body-secondary" style="font-size: 0.65rem;">Kondisi sanitasi buruk</div>
                 </div>
             </div>
         </div>
@@ -82,22 +82,22 @@
 </div>
 
 <!-- Charts Row -->
-<div class="row mb-3">
+<div class="row g-2 mb-2">
     <div class="col-md-5">
-        <div class="card h-100 border shadow-sm" style="border-radius: 10px;">
-            <div class="card-body p-3">
-                <h6 class="card-title text-success fw-bold mb-3">Ringkasan Status Fasilitas</h6>
-                <div style="position: relative; height: 220px;">
+        <div class="card h-100 border shadow-sm" style="border-radius: 8px;">
+            <div class="card-body p-2">
+                <h6 class="card-title text-success fw-bold mb-2" style="font-size: 0.85rem;">Ringkasan Status Fasilitas</h6>
+                <div style="position: relative; height: 180px;">
                     <canvas id="statusDoughnutChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-7">
-        <div class="card h-100 border shadow-sm" style="border-radius: 10px;">
-            <div class="card-body p-3">
-                <h6 class="card-title text-success fw-bold mb-3">Inspeksi 7 Hari Terakhir</h6>
-                <div style="position: relative; height: 220px;">
+        <div class="card h-100 border shadow-sm" style="border-radius: 8px;">
+            <div class="card-body p-2">
+                <h6 class="card-title text-success fw-bold mb-2" style="font-size: 0.85rem;">Inspeksi 7 Hari Terakhir</h6>
+                <div style="position: relative; height: 180px;">
                     <canvas id="inspeksiLineChart"></canvas>
                 </div>
             </div>
@@ -106,54 +106,59 @@
 </div>
 
 <!-- Tables Row -->
-<div class="row mb-4">
+<div class="row g-2 mb-3">
     <!-- Fasilitas Perlu Tindak Lanjut -->
-    <div class="col-md-7 mb-3 mb-md-0">
-        <div class="card h-100 border shadow-sm" style="border-radius: 10px;">
-            <div class="card-body p-3">
-                <h6 class="card-title text-success fw-bold mb-3">Fasilitas Perlu Tindak Lanjut</h6>
+    <div class="col-md-7">
+        <div class="card h-100 border shadow-sm" style="border-radius: 8px;">
+            <div class="card-body p-2">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="card-title text-success fw-bold mb-0" style="font-size: 0.85rem;">Fasilitas Perlu Tindak Lanjut</h6>
+                    <a href="/fasilitas-umum" class="btn btn-outline-success btn-sm fw-bold p-1 px-2" style="border-radius: 4px; font-size: 0.7rem;">Lihat Semua</a>
+                </div>
                 <div class="table-responsive">
-                    <table class="table table-borderless table-hover align-middle mb-0">
-                        <thead class="text-success" style="border-bottom: 1px solid var(--cui-border-color);">
+                    <table class="table table-sm table-borderless table-hover align-middle mb-0" style="font-size: 0.75rem;">
+                        <thead class="text-success" style="border-bottom: 1px solid var(--cui-border-color); background-color: var(--cui-tertiary-bg);">
                             <tr>
-                                <th class="text-center py-2" style="font-size: 0.8rem;">No</th>
-                                <th class="py-2" style="font-size: 0.8rem;">Nama Fasilitas</th>
-                                <th class="py-2" style="font-size: 0.8rem;">Lokasi</th>
-                                <th class="text-center py-2" style="font-size: 0.8rem;">Status</th>
-                                <th class="text-center py-2" style="font-size: 0.8rem;">Aksi</th>
+                                <th class="text-center py-1">No</th>
+                                <th class="py-1">Nama Fasilitas & Lokasi</th>
+                                <th class="text-center py-1">Status</th>
+                                <th class="text-center py-1">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($fasilitasTindakLanjut as $index => $ft)
-                            <tr>
-                                <td class="text-center text-body-secondary small py-2">{{ $index + 1 }}</td>
-                                <td class="text-body-secondary small py-2">{{ $ft->nama_fasilitas }}</td>
-                                <td class="text-body-secondary small py-2">{{ $ft->lokasi }}</td>
-                                <td class="text-center py-2">
+                            <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+                                <td class="text-center text-body-secondary py-1">{{ $index + 1 }}</td>
+                                <td class="py-1">
+                                    <div class="fw-bold text-body text-truncate" style="max-width: 150px;">{{ $ft->nama_fasilitas }}</div>
+                                    <div class="text-body-secondary text-truncate" style="max-width: 150px; font-size: 0.65rem;">{{ $ft->lokasi }}</div>
+                                </td>
+                                <td class="text-center py-1">
                                     @if($ft->status_badge == 'buruk')
-                                        <span class="badge bg-danger" style="min-width: 90px; font-size: 0.7rem;">Buruk</span>
+                                        <span class="badge bg-danger" style="font-size: 0.65rem;">Buruk</span>
                                     @elseif($ft->status_badge == 'perlu_perhatian')
-                                        <span class="badge bg-warning text-dark" style="min-width: 90px; font-size: 0.7rem;">Perlu Perhatian</span>
+                                        <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">Perlu Perhatian</span>
                                     @elseif($ft->status_badge == 'perlu_dibersihkan')
-                                        <span class="badge" style="background-color: #fd7e14; color: #fff; min-width: 90px; font-size: 0.7rem;">Perlu Dibersihkan</span>
+                                        <span class="badge text-white" style="background-color: #fd7e14; font-size: 0.65rem;">Perlu Dibersihkan</span>
                                     @elseif($ft->status_badge == 'belum_diinspeksi')
-                                        <span class="badge bg-secondary" style="min-width: 90px; font-size: 0.7rem;">Belum Diinspeksi</span>
+                                        <span class="badge bg-secondary" style="font-size: 0.65rem;">Belum Diinspeksi</span>
                                     @else
-                                        <span class="badge bg-secondary" style="min-width: 90px; font-size: 0.7rem;">Unknown</span>
+                                        <span class="badge bg-secondary" style="font-size: 0.65rem;">Unknown</span>
                                     @endif
                                 </td>
-                                <td class="text-center text-body-secondary py-2"><a href="/fasilitas-umum" class="text-decoration-none">⋮</a></td>
+                                <td class="text-center py-1">
+                                    <a href="/fasilitas-umum" class="btn btn-sm btn-light border p-1" title="Detail">
+                                        <svg style="width: 12px; height: 12px; color: #1b5e3a;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 120C114.6 120 16 237.3 16 256s98.6 136 240 136 240-117.3 240-136-98.6-136-240-136zm0 224c-48.6 0-88-39.4-88-88s39.4-88 88-88 88 39.4 88 88-39.4 88-88 88z"/><circle fill="currentColor" cx="256" cy="256" r="48"/></svg>
+                                    </a>
+                                </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="text-center text-body-secondary py-3">Semua fasilitas dalam kondisi baik!</td>
+                                <td colspan="4" class="text-center text-body-secondary py-3">Semua fasilitas dalam kondisi baik!</td>
                             </tr>
                             @endforelse
                         </tbody>
                     </table>
-                </div>
-                <div class="mt-2 text-end">
-                    <a href="/fasilitas-umum" class="btn btn-outline-success btn-sm fw-bold" style="border-radius: 20px; padding: 0.2rem 0.8rem; font-size: 0.75rem;">Lihat Semua</a>
                 </div>
             </div>
         </div>
@@ -161,10 +166,14 @@
     
     <!-- Fasilitas dengan Masalah Terbanyak -->
     <div class="col-md-5">
-        <div class="card h-100 border shadow-sm" style="border-radius: 10px;">
-            <div class="card-body p-3 d-flex flex-column">
-                <h6 class="card-title text-success fw-bold mb-3">Masalah Terbanyak</h6>
+        <div class="card h-100 border shadow-sm" style="border-radius: 8px;">
+            <div class="card-body p-2 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="card-title text-success fw-bold mb-0" style="font-size: 0.85rem;">Masalah Terbanyak</h6>
+                    <a href="/inspeksi-sanitasi" class="btn btn-outline-success btn-sm fw-bold p-1 px-2" style="border-radius: 4px; font-size: 0.7rem;">Lihat Inspeksi</a>
+                </div>
                 
+                <div class="flex-grow-1">
                 @forelse($masalahTerbanyak as $index => $mt)
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex align-items-center">
@@ -176,9 +185,6 @@
                 @empty
                 <p class="text-muted small text-center my-4">Belum ada data masalah yang tercatat.</p>
                 @endforelse
-                
-                <div class="mt-auto text-end pt-2">
-                    <a href="/inspeksi-sanitasi" class="btn btn-outline-success btn-sm fw-bold" style="border-radius: 20px; padding: 0.2rem 0.8rem; font-size: 0.75rem;">Lihat Inspeksi</a>
                 </div>
             </div>
         </div>
