@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - SanitaCHECK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Menggeser card ke kiri di desktop */
+            background: url("<?php echo e(asset('assets/image/background-1.png')); ?>") no-repeat center center fixed;
+            background-size: cover;
+            padding-left: 8%; /* Jarak dari sisi kiri layar di desktop */
+            position: relative;
+        }
+        
+        /* Header Instansi di pojok kanan atas */
+        .top-header-brand {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10;
+        }
+        .top-header-brand p {
+            margin: 0;
+            color: #ffffff; 
+            font-weight: 700; 
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6), -1px -1px 4px rgba(0, 0, 0, 0.6); 
+        }
+        .top-header-brand img {
+            height: 55px;
+            object-fit: contain;
+        }
+
+        /* Desain Card Login Putih Melayang */
+        .login-card {
+            position: relative;
+            z-index: 2;
+            background: #ffffff;
+            border-radius: 24px; 
+            padding: 24px 35px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        
+        .logo-sanitacheck {
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .welcome-title {
+            color: #2d6a4f; 
+            font-weight: 700;
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .welcome-desc {
+            color: #777777;
+            font-size: 13.5px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        /* Desain Kolom Input Abu-abu Bulat */
+        .form-control {
+            padding: 14px 20px;
+            border-radius: 14px;
+            border: none;
+            background-color: #e9ecef; 
+            color: #333;
+            font-size: 14.5px;
+        }
+        .form-control::placeholder {
+            color: #999999;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.15);
+            border-color: transparent;
+            background-color: #e2e5e9;
+        }
+
+        /* Desain Tombol Hijau */
+        .btn-login {
+            padding: 13px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 16px;
+            background-color: #2d6a4f; 
+            border: none;
+            color: white;
+            transition: background-color 0.2s ease-in-out;
+            margin-top: 5px;
+        }
+        .btn-login:hover {
+            background-color: #1b4332;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                justify-content: center; /* Membawa card login tepat ke tengah layar */
+                padding-left: 0; /* Menghapus padding kiri desktop */
+                padding: 20px; /* Jarak aman tipis di kanan-kiri agar card tidak menempel ke layar HP */
+            }
+
+            /* Penyesuaian Header Atas agar muat di HP */
+            .top-header-brand {
+                top: 15px;
+                right: 50%;
+                transform: translateX(50%); /* Membuat teks instansi bergeser ke tengah atas */
+                width: 100%;
+                justify-content: center;
+                gap: 8px;
+                padding: 0 15px;
+            }
+            .top-header-brand p {
+                font-size: 11px; /* Mengecilkan teks instansi di HP */
+                text-align: center;
+            }
+            .top-header-brand img {
+                height: 35px; /* Mengecilkan logo instansi di HP */
+            }
+
+            /* Menyesuaikan jarak card agar tidak menabrak header atas */
+            .login-card {
+                margin-top: 60px;
+                padding: 24px 25px; /* Sedikit memperkecil padding dalam card di HP */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-header-brand">
+        <p>ITSK RS dr. Soepraoen Kesdam V/BRW Malang</p>
+        <img src="<?php echo e(asset('assets/image/logo-itsk.png')); ?>" alt="Logo ITSK">
+    </div>
+
+    <div class="login-card">
+        <img src="<?php echo e(asset('assets/image/logo-sanitacheck.png')); ?>" alt="Logo SanitaCheck" class="logo-sanitacheck">
+        
+        <div>
+            <h4 class="welcome-title">Selamat Datang</h4>
+            <p class="welcome-desc">Silahkan masuk ke portal SanitaCheck ITSK RS dr.Soepraoen.</p>
+        </div>
+
+        <form method="POST" action="<?php echo e(route('login')); ?>">
+            <?php echo csrf_field(); ?>
+
+            <div class="mb-3">
+                <input id="username" type="text" class="form-control <?php $__errorArgs = ['username'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="username" value="<?php echo e(old('username')); ?>" required autofocus placeholder="Username">
+                <?php $__errorArgs = ['username'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <span class="invalid-feedback" role="alert">
+                        <strong><?php echo e($message); ?></strong>
+                    </span>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+            </div>
+
+            <div class="mb-4">
+                <input id="password" type="password" class="form-control <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>" name="password" required autocomplete="current-password" placeholder="Password">
+                <?php $__errorArgs = ['password'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                    <span class="invalid-feedback" role="alert">
+                        <strong><?php echo e($message); ?></strong>
+                    </span>
+                <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 btn-login">
+                Masuk
+            </button>
+        </form>
+    </div>
+
+</body>
+</html><?php /**PATH C:\Project Web Porto\SanitaCheck - Kampus Sehat Terintegrasi\SanitaCHECK-version1-kelompok-6\resources\views/auth/login.blade.php ENDPATH**/ ?>

@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+
+
+    RewriteEngine On
+    RewriteBase /
+
+    # Keamanan tambahan: blokir akses langsung ke file sensitif
+    RewriteRule ^\.env - [F,L,NC]
+    RewriteRule ^composer\.(json|lock) - [F,L,NC]
+    RewriteRule ^package\.(json|lock) - [F,L,NC]
+
+    # Arahkan semua permintaan ke folder public
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
+</IfModule>
