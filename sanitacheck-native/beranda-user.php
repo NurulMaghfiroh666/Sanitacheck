@@ -1,21 +1,32 @@
 <?php
 require_once 'services/api.php';
+
+// Semua data dari API / JSON lokal — tidak ada hardcoded mock
 $stats = getStatistik();
-
-// Fetch 10 aktivitas inspeksi terbaru (mock)
-$response_fasilitas = json_decode(fetchApi('/api/fasilitas'), true);
-$semua_fasilitas = $response_fasilitas['status'] == 'success' ? $response_fasilitas['data'] : [];
-
-// Ambil 5 top fasilitas untuk ditampilkan di tabel
+$response_fasilitas = getFasilitas();
+$semua_fasilitas = $response_fasilitas['data'];
 $top_5 = array_slice($semua_fasilitas, 0, 5);
 
-// Data mock untuk "Fasilitas dengan Masalah Terbanyak" sesuai desain
-$masalah_terbanyak = [
-    ['nama' => 'Kantin Mami ITSK', 'kali' => 1, 'badge' => 'dc3545'], // Merah
-    ['nama' => 'Wastafel Cuci Tangan', 'kali' => 3, 'badge' => 'fd7e14'], // Orange
-    ['nama' => 'Lobby Rektorat ITSK Soepraoen Malang', 'kali' => 2, 'badge' => 'ffc107'], // Kuning
-    ['nama' => 'LPPM ITSK Soepraoen Malang', 'kali' => 4, 'badge' => 'ffc107'], // Kuning
-];
+// Fasilitas dengan masalah terbanyak: dihitung dari data keluhan
+$keluhan_all = getKeluhan()['data'];
+$keluhan_count = [];
+$masalah_terbanyak = [];
+foreach ($keluhan_all as $k) {
+    $nama = $k['fasilitas_nama'] ?? $k['nama'] ?? '-';
+    if (!isset($keluhan_count[$nama])) $keluhan_count[$nama] = 0;
+    $keluhan_count[$nama]++;
+}
+arsort($keluhan_count);
+$i = 0;
+$warna = ['dc3545', 'fd7e14', 'ffc107', 'ffc107', '0d6efd', '6f42c1'];
+foreach ($keluhan_count as $nama => $kali) {
+    if ($i >= 6) break;
+    $masalah_terbanyak[] = ['nama' => $nama, 'kali' => $kali, 'badge' => $warna[$i % count($warna)]];
+    $i++;
+}
+if (empty($masalah_terbanyak)) {
+    $masalah_terbanyak = [['nama' => 'Belum ada data keluhan', 'kali' => 0, 'badge' => '6c757d']];
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -547,49 +558,23 @@ $masalah_terbanyak = [
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php 
-                                    // Jika data top_5 kosong (misalnya dari API belum ada data), gunakan data mock untuk visualisasi desain
-                                    if(empty($top_5)): 
-                                        $mock_top = [
-                                            ['nama' => 'LPPM ITSK Soepraoen', 'lokasi' => 'Kampus 2', 'status' => 'Perlu Perhatian', 'badge' => 'badge-perhatian'],
-                                            ['nama' => 'Lobby Rektorat ITSK Soepraoen Malang', 'lokasi' => 'Kampus 2', 'status' => 'Perlu Perhatian', 'badge' => 'badge-perhatian'],
-                                            ['nama' => 'Wastafel Cuci Tangan', 'lokasi' => 'Kampus 4', 'status' => 'Perlu Dibersihkan', 'badge' => 'badge-dibersihkan'],
-                                            ['nama' => 'Kantin Mami ITSK Soepraoen Malang', 'lokasi' => 'Kampus 2', 'status' => 'Buruk', 'badge' => 'badge-buruk'],
-                                            ['nama' => 'Toilet Lantai 2 FST', 'lokasi' => 'Kampus 3', 'status' => 'Bersih dan Aman', 'badge' => 'badge-aman'],
-                                        ];
-                                        foreach($mock_top as $fas):
-                                    ?>
-                                    <tr>
-                                        <td class="fw-medium text-secondary" style="font-size: 14px;"><?= htmlspecialchars($fas['nama']) ?></td>
-                                        <td class="text-secondary fw-medium" style="font-size: 14px;"><?= htmlspecialchars($fas['lokasi']) ?></td>
-                                        <td><span class="badge-custom <?= $fas['badge'] ?>"><?= $fas['status'] ?></span></td>
-                                    </tr>
-                                    <?php 
-                                        endforeach;
-                                    else:
-                                        foreach($top_5 as $fas): 
-                                            $status_lower = strtolower($fas['status'] ?? '');
-                                            $badge_class = 'badge-perhatian';
-                                            $status_text = $fas['status'] ?? 'Perlu Perhatian';
-                                            
-                                            if($status_lower == 'bersih' || $status_lower == 'bersih dan aman') {
-                                                $badge_class = 'badge-aman';
-                                                $status_text = 'Bersih dan Aman';
-                                            } else if($status_lower == 'perlu dibersihkan' || $status_lower == 'perbaikan') {
-                                                $badge_class = 'badge-dibersihkan';
-                                            } else if($status_lower == 'buruk' || $status_lower == 'rusak') {
-                                                $badge_class = 'badge-buruk';
-                                            }
+                                    <?php foreach($top_5 as $fas): 
+                                        $status_lower = strtolower($fas['status'] ?? '');
+                                        $badge_class = 'badge-aman';
+                                        $status_text = $fas['status'] ?? '-';
+                                        if ($status_lower == 'perlu perhatian') { $badge_class = 'badge-perhatian'; }
+                                        elseif ($status_lower == 'perlu dibersihkan' || $status_lower == 'perbaikan') { $badge_class = 'badge-dibersihkan'; }
+                                        elseif ($status_lower == 'buruk' || $status_lower == 'rusak') { $badge_class = 'badge-buruk'; }
                                     ?>
                                     <tr>
                                         <td class="fw-medium text-secondary" style="font-size: 14px;"><?= htmlspecialchars($fas['nama'] ?? '') ?></td>
                                         <td class="text-secondary fw-medium" style="font-size: 14px;"><?= htmlspecialchars($fas['lokasi'] ?? '') ?></td>
                                         <td><span class="badge-custom <?= $badge_class ?>"><?= htmlspecialchars($status_text) ?></span></td>
                                     </tr>
-                                    <?php 
-                                        endforeach; 
-                                    endif;
-                                    ?>
+                                    <?php endforeach; 
+                                    if (empty($top_5)): ?>
+                                    <tr><td colspan="3" class="text-center py-3 text-muted">Belum ada data fasilitas.</td></tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -621,93 +606,60 @@ $masalah_terbanyak = [
         <div id="fasilitas-section" class="mt-3 pt-2 pb-4">
             <hr class="mb-4 opacity-25">
             <h3 class="section-title">Category</h3>
+            <!-- Category cards: dinamis dari data fasilitas -->
+            <?php
+            $jenis_list = [];
+            $icon_jenis = [
+                'Toilet' => ['icon-box' => 'icon-toilet', 'icon' => 'bi-gender-ambiguous'],
+                'Wastafel' => ['icon-box' => 'icon-wastafel', 'icon' => 'bi-droplet'],
+                'Kantin' => ['icon-box' => 'icon-kantin', 'icon' => 'bi-shop'],
+                'Kantor' => ['icon-box' => 'icon-lppm', 'icon' => 'bi-person-workspace'],
+                'Lobby' => ['icon-box' => 'icon-lobby', 'icon' => 'bi-building'],
+            ];
+            $default_icon = ['icon-box' => 'icon-lainnya', 'icon' => 'bi-three-dots'];
+
+            foreach ($semua_fasilitas as $f) {
+                $jns = $f['jenis'] ?? 'Lainnya';
+                if (!isset($jenis_list[$jns])) {
+                    $jenis_list[$jns] = ['count' => 0, 'first' => $f];
+                }
+                $jenis_list[$jns]['count']++;
+            }
+            ?>
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 mb-5">
+                <?php foreach ($jenis_list as $jenis => $info):
+                    $icon_data = $icon_jenis[$jenis] ?? $default_icon;
+                    $first = $info['first'];
+                ?>
                 <div class="col">
-                    <a href="#fasilitas-section" class="category-card" data-filter="Toilet">
-                        <div class="cat-icon-box icon-toilet"><i class="bi bi-gender-ambiguous"></i></div>
+                    <a href="#fasilitas-section" class="category-card" data-filter="<?= htmlspecialchars($jenis) ?>">
+                        <div class="cat-icon-box <?= $icon_data['icon-box'] ?>"><i class="bi <?= $icon_data['icon'] ?>"></i></div>
                         <div>
-                            <div class="cat-title">Toilet</div>
-                            <div class="cat-subtitle">Toilet Lantai 1 FST<br>Kondisi sanitasi buruk</div>
+                            <div class="cat-title"><?= htmlspecialchars($jenis) ?></div>
+                            <div class="cat-subtitle"><?= htmlspecialchars($first['nama'] ?? '') ?><br><?= $info['count'] ?> fasilitas</div>
                         </div>
                         <i class="bi bi-arrow-right cat-arrow"></i>
                     </a>
                 </div>
-                <div class="col">
-                    <a href="#fasilitas-section" class="category-card" data-filter="Wastafel">
-                        <div class="cat-icon-box icon-wastafel"><i class="bi bi-droplet"></i></div>
-                        <div>
-                            <div class="cat-title">Wastafel Cuci Tangan</div>
-                            <div class="cat-subtitle">Kondisi sanitasi<br>dibersihkan</div>
-                        </div>
-                        <i class="bi bi-arrow-right cat-arrow"></i>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="#fasilitas-section" class="category-card" data-filter="Kantin">
-                        <div class="cat-icon-box icon-kantin"><i class="bi bi-shop"></i></div>
-                        <div>
-                            <div class="cat-title">Kantin</div>
-                            <div class="cat-subtitle">Kantin kebersihan<br>dan buruk</div>
-                        </div>
-                        <i class="bi bi-arrow-right cat-arrow"></i>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="#fasilitas-section" class="category-card" data-filter="Lobby">
-                        <div class="cat-icon-box icon-lobby"><i class="bi bi-building"></i></div>
-                        <div>
-                            <div class="cat-title">Lobby</div>
-                            <div class="cat-subtitle">Lobby Rektorat ITSK<br>Soepraoen Malang</div>
-                        </div>
-                        <i class="bi bi-arrow-right cat-arrow"></i>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="#fasilitas-section" class="category-card" data-filter="LPPM">
-                        <div class="cat-icon-box icon-lppm"><i class="bi bi-person-workspace"></i></div>
-                        <div>
-                            <div class="cat-title">LPPM Mami ITSK</div>
-                            <div class="cat-subtitle">Kantin Mami ITSK<br>Kondisi sanitasi buruk</div>
-                        </div>
-                        <i class="bi bi-arrow-right cat-arrow"></i>
-                    </a>
-                </div>
+                <?php endforeach; ?>
+
+                <!-- Filter status -->
                 <div class="col">
                     <a href="#fasilitas-section" class="category-card" data-filter="status:buruk">
-                        <div class="cat-icon-box icon-toilet"><i class="bi bi-gender-ambiguous"></i></div>
+                        <div class="cat-icon-box icon-toilet"><i class="bi bi-exclamation-triangle"></i></div>
                         <div>
                             <div class="cat-title">Kondisi Buruk</div>
-                            <div class="cat-subtitle">Toilet Lantai 1 FST<br>Kondisi sanitasi buruk</div>
-                        </div>
-                        <i class="bi bi-arrow-right cat-arrow"></i>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="#fasilitas-section" class="category-card" data-filter="Wastafel">
-                        <div class="cat-icon-box icon-wastafel"><i class="bi bi-droplet"></i></div>
-                        <div>
-                            <div class="cat-title">Wastafel Cuci Tangan</div>
-                            <div class="cat-subtitle">Kondisi sanitasi<br>dibersihkan</div>
-                        </div>
-                        <i class="bi bi-arrow-right cat-arrow"></i>
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="#fasilitas-section" class="category-card" data-filter="Kantin">
-                        <div class="cat-icon-box icon-kantin"><i class="bi bi-shop"></i></div>
-                        <div>
-                            <div class="cat-title">Kantin</div>
-                            <div class="cat-subtitle">Kantin Mami ITSK<br>Soepraoen Malang</div>
+                            <div class="cat-subtitle">Fasilitas dengan<br>kondisi sanitasi buruk</div>
                         </div>
                         <i class="bi bi-arrow-right cat-arrow"></i>
                     </a>
                 </div>
                 <div class="col">
                     <a href="#fasilitas-section" class="category-card" data-filter="status:bersih">
-                        <div class="cat-icon-box icon-lobby"><i class="bi bi-building"></i></div>
+                        <div class="cat-icon-box icon-lobby"><i class="bi bi-check-circle"></i></div>
                         <div>
                             <div class="cat-title">Kondisi Bersih</div>
-                            <div class="cat-subtitle">Lobby Rektorat ITSK<br>Soepraoen Malang</div>
+                            <div class="cat-subtitle">Fasilitas dengan<br>kondisi bersih dan aman</div>
                         </div>
                         <i class="bi bi-arrow-right cat-arrow"></i>
                     </a>
@@ -717,7 +669,7 @@ $masalah_terbanyak = [
                         <div class="cat-icon-box icon-lainnya"><i class="bi bi-three-dots"></i></div>
                         <div>
                             <div class="cat-title">Semua Fasilitas</div>
-                            <div class="cat-subtitle">Lihat semua fasilitas<br>yang tersedia</div>
+                            <div class="cat-subtitle">Tampilkan semua<br>fasilitas yang tersedia</div>
                         </div>
                         <i class="bi bi-arrow-right cat-arrow"></i>
                     </a>
@@ -740,14 +692,7 @@ $masalah_terbanyak = [
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            $data_table = !empty($semua_fasilitas) ? $semua_fasilitas : [
-                                ['id' => 1, 'nama' => 'LPPM ITSK Soepraoen', 'lokasi' => 'Kampus 2', 'status' => 'Perlu Perhatian', 'terakhir_inspeksi' => '2023-08-29'],
-                                ['id' => 2, 'nama' => 'Lobby Rektorat ITSK Soepraoen Malang', 'lokasi' => 'Kampus 2', 'status' => 'Perlu Perhatian', 'terakhir_inspeksi' => '2023-08-29'],
-                                ['id' => 3, 'nama' => 'Wastafel Cuci Tangan', 'lokasi' => 'Kampus 4', 'status' => 'Perlu Dibersihkan', 'terakhir_inspeksi' => '2023-08-28'],
-                                ['id' => 4, 'nama' => 'Kantin Mami ITSK Soepraoen Malang', 'lokasi' => 'Kampus 3', 'status' => 'Buruk', 'terakhir_inspeksi' => '2023-08-28'],
-                                ['id' => 5, 'nama' => 'Toilet Lantai 2 FST', 'lokasi' => 'Kampus 3', 'status' => 'Bersih dan Aman', 'terakhir_inspeksi' => '2023-08-28'],
-                            ];
+                            <?php $data_table = $semua_fasilitas;
                             foreach ($data_table as $item):
                                 $sl = strtolower($item['status'] ?? '');
                                 $bc = 'badge-perhatian';
@@ -762,7 +707,9 @@ $masalah_terbanyak = [
                                 <td class="text-center"><span class="badge-custom <?= $bc ?>"><?= htmlspecialchars($st) ?></span></td>
                                 <td class="text-center"><?= date('d/m/Y', strtotime($item['terakhir_inspeksi'] ?? 'now')) ?></td>
                             </tr>
-                            <?php endforeach; ?>
+                            <?php endforeach; if (empty($data_table)): ?>
+                            <tr><td colspan="4" class="text-center py-3 text-muted">Belum ada data fasilitas.</td></tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -869,6 +816,27 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // === ScrollSpy Nav ===
+    var sectionFasilitas = document.getElementById('fasilitas-section');
+    var navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    
+    if (sectionFasilitas) {
+        window.addEventListener('scroll', function() {
+            var scrollPosition = window.scrollY;
+            var offset = sectionFasilitas.offsetTop - 150; // offset for fixed navbar
+            
+            if (scrollPosition >= offset) {
+                navLinks.forEach(function(l) { l.classList.remove('active'); });
+                var fasLink = document.querySelector('.navbar-nav .nav-link[href="#fasilitas-section"]');
+                if (fasLink) fasLink.classList.add('active');
+            } else {
+                navLinks.forEach(function(l) { l.classList.remove('active'); });
+                var berandaLink = document.querySelector('.navbar-nav .nav-link[href="beranda-user.php"]');
+                if (berandaLink) berandaLink.classList.add('active');
+            }
+        });
+    }
 });
 </script>
 </body>

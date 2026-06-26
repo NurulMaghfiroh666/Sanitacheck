@@ -2,48 +2,35 @@
 require_once 'services/api.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($id === 0) { header("Location: beranda-user.php#fasilitas-section"); exit; }
 
-if ($id === 0) {
+$response = getFasilitasById($id);
+if ($response['status'] !== 'success') {
     header("Location: beranda-user.php#fasilitas-section");
     exit;
 }
-
-// Ambil detail fasilitas
-$response = json_decode(fetchApi("/api/fasilitas/$id"), true);
-if ($response['status'] !== 'success' || empty($response['data'])) {
-    die("Data fasilitas tidak ditemukan.");
-}
 $fasilitas = $response['data'];
 
-// Ambil riwayat inspeksi
-$response_riwayat = json_decode(fetchApi("/api/fasilitas/$id/inspeksi"), true);
-$riwayat = $response_riwayat['status'] == 'success' ? $response_riwayat['data'] : [];
-
-// Ambil 3 inspeksi terakhir
+$inspeksi = getInspeksiByFasilitas($id);
+$riwayat = $inspeksi['data'] ?? [];
 $riwayat_terakhir = array_slice($riwayat, 0, 3);
 
-// Menentukan rekomendasi
-$rekomendasi = '';
-$alert_class = '';
-$status_lower = strtolower($fasilitas['status']);
-
-if ($status_lower == 'bersih') {
+$status_lower = strtolower($fasilitas['status'] ?? '');
+$rekomendasi = 'Fasilitas dalam kondisi buruk. Segera lakukan perbaikan menyeluruh dan hubungi teknisi jika ada kerusakan.';
+$alert_class = 'alert-danger';
+if ($status_lower == 'bersih' || $status_lower == 'bersih dan aman') {
     $rekomendasi = 'Fasilitas dalam kondisi baik. Tetap lakukan pemantauan rutin untuk menjaga kualitas sanitasi.';
     $alert_class = 'alert-success';
 } elseif ($status_lower == 'perlu perhatian') {
     $rekomendasi = 'Ditemukan beberapa masalah ringan. Segera lakukan pembersihan rutin agar fasilitas kembali nyaman digunakan.';
     $alert_class = 'alert-warning';
-} else {
-    $rekomendasi = 'Fasilitas dalam kondisi buruk. Segera lakukan perbaikan menyeluruh dan hubungi teknisi jika ada kerusakan.';
-    $alert_class = 'alert-danger';
 }
 
-// Simulasi Checklist Berdasarkan Status
 $checklist = [
-    'Ketersediaan Air' => $status_lower == 'bersih' || $status_lower == 'perlu perhatian' ? true : false,
-    'Ketersediaan Sabun' => $status_lower == 'bersih' ? true : false,
-    'Tidak Ada Bau' => $status_lower != 'perlu perbaikan' ? true : false,
-    'Lantai Kering & Bersih' => $status_lower == 'bersih' ? true : false
+    'Ketersediaan Air' => $status_lower == 'bersih' || $status_lower == 'perlu perhatian' || $status_lower == 'bersih dan aman',
+    'Ketersediaan Sabun' => $status_lower == 'bersih' || $status_lower == 'bersih dan aman',
+    'Tidak Ada Bau' => $status_lower != 'perlu perbaikan' && $status_lower != 'buruk',
+    'Lantai Kering & Bersih' => $status_lower == 'bersih' || $status_lower == 'bersih dan aman',
 ];
 ?>
 <!DOCTYPE html>

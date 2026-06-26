@@ -1,80 +1,59 @@
 <?php
 require_once 'services/api.php';
 
-// Ambil semua fasilitas untuk dropdown
-$response = json_decode(fetchApi('/api/fasilitas'), true);
-$fasilitas = $response['status'] == 'success' ? $response['data'] : [];
+// Semua data dari API / JSON lokal — tidak ada hardcoded mock
+$fasilitas = getFasilitas()['data'];
+$data_keluhan = getKeluhan()['data'];
+$peralatan = getPeralatan()['data'];
 
-// Ambil aktivitas terakhir dari API (keluhan)
-$response_keluhan = json_decode(fetchApi('/api/keluhan'), true);
+// Aktivitas terakhir & riwayat dari data keluhan
 $aktivitas_terakhir = [];
 $riwayat = [];
-if ($response_keluhan && $response_keluhan['status'] == 'success') {
-    $data_keluhan = $response_keluhan['data'];
-    $no = 1;
-    foreach ($data_keluhan as $k) {
-        $status = $k['status'] ?? 'Diajukan';
-        $status_class = 'status-diajukan';
-        if (stripos($status, 'proses') !== false) $status_class = 'status-proses';
-        if (stripos($status, 'selesai') !== false) $status_class = 'status-selesai';
-        $aktivitas_terakhir[] = [
-            'no' => $no++,
-            'lokasi' => $k['fasilitas_nama'] ?? ($k['nama'] ?? '-'),
-            'masalah' => $k['catatan'] ?? '-',
-            'tanggal' => date('d M Y', strtotime($k['created_at'] ?? $k['tanggal'] ?? 'now')),
-            'status' => $status,
-            'icon' => 'bi-building',
-            'color' => 'success'
-        ];
-        $riwayat[] = [
-            'id' => $k['id_keluhan'] ?? ('ID: ' . ($k['id'] ?? 'XXX')),
-            'tanggal' => date('d M Y', strtotime($k['created_at'] ?? $k['tanggal'] ?? 'now')),
-            'status' => $status,
-            'masalah' => $k['fasilitas_nama'] ?? ($k['nama'] ?? '-'),
-            'resolution' => $k['resolution'] ?? ($status === 'Selesai' ? 'Selesai Penanganan' : 'Diajukan Berinisiatif')
-        ];
-    }
-}
-
-// Fallback mock jika API kosong
-if (empty($aktivitas_terakhir)) {
-    $aktivitas_terakhir = [
-        ['no' => 1, 'lokasi' => 'Lobby Rektorat ITSK Soepraoen', 'masalah' => '-', 'tanggal' => date('d M Y'), 'status' => 'Diajukan', 'icon' => 'bi-building', 'color' => 'success'],
-        ['no' => 2, 'lokasi' => 'Berantakan Sabun Habis', 'masalah' => '-', 'tanggal' => date('d M Y'), 'status' => 'Sedang Diproses', 'icon' => 'bi-droplet-half', 'color' => 'danger'],
-        ['no' => 3, 'lokasi' => 'Wastafel Cuci Malang', 'masalah' => '-', 'tanggal' => date('d M Y'), 'status' => 'Sedang Diproses', 'icon' => 'bi-trash', 'color' => 'secondary'],
-        ['no' => 4, 'lokasi' => 'Peralatan Rusak Malang', 'masalah' => '-', 'tanggal' => date('d M Y'), 'status' => 'Selesai', 'icon' => 'bi-tools', 'color' => 'primary'],
-        ['no' => 5, 'lokasi' => 'Toilet Lantai 2 FST Malang', 'masalah' => '-', 'tanggal' => date('d M Y'), 'status' => 'Selesai', 'icon' => 'bi-gender-ambiguous', 'color' => 'success'],
+$no = 1;
+foreach ($data_keluhan as $k) {
+    $status = $k['status'] ?? 'Diajukan';
+    $icon_map = ['bi-building', 'bi-droplet-half', 'bi-trash', 'bi-tools', 'bi-gender-ambiguous', 'bi-shop'];
+    $color_map = ['success', 'danger', 'secondary', 'primary', 'warning', 'info'];
+    $aktivitas_terakhir[] = [
+        'no' => $no++,
+        'lokasi' => $k['fasilitas_nama'] ?? ($k['nama'] ?? '-'),
+        'masalah' => $k['catatan'] ?? '-',
+        'tanggal' => date('d M Y', strtotime($k['created_at'] ?? 'now')),
+        'status' => $status,
+        'icon' => $icon_map[($no - 1) % count($icon_map)],
+        'color' => $color_map[($no - 1) % count($color_map)],
     ];
-}
-if (empty($riwayat)) {
-    $riwayat = [
-        ['id' => 'ID: 1025373000000303', 'tanggal' => date('d M Y'), 'status' => 'Diajukan', 'masalah' => 'Lobby Rektorat ITSK Soepraoen', 'resolution' => 'Diajukan Berinisiatif'],
-        ['id' => 'ID: 1025373000000260', 'tanggal' => date('d M Y'), 'status' => 'Sedang Diproses', 'masalah' => 'Berantakan Sabun Habis', 'resolution' => 'Selesai Penanganan'],
-        ['id' => 'ID: 1025373000000267', 'tanggal' => date('d M Y'), 'status' => 'Diajukan', 'masalah' => 'Berantakan Sabun Malang', 'resolution' => 'Berantakan Sabun Kamar'],
-        ['id' => 'ID: 1025373000000267', 'tanggal' => date('d M Y'), 'status' => 'Selesai', 'masalah' => 'Wastafel Lantai 2 FST Malang', 'resolution' => 'Selesai Penanganan'],
+    $riwayat[] = [
+        'id' => $k['id_keluhan'] ?? ('ID#' . ($k['id'] ?? 'XXX')),
+        'tanggal' => date('d M Y', strtotime($k['created_at'] ?? 'now')),
+        'status' => $status,
+        'masalah' => $k['fasilitas_nama'] ?? ($k['nama'] ?? '-'),
+        'resolution' => $k['resolution'] ?? ($status === 'Selesai' ? 'Selesai Penanganan' : 'Diajukan Berinisiatif'),
     ];
 }
 
-// Ambil peralatan dari API
-$response_peralatan = json_decode(fetchApi('/api/peralatan'), true);
-$peralatan = ($response_peralatan && $response_peralatan['status'] == 'success') ? $response_peralatan['data'] : [];
-if (empty($peralatan)) {
-    $peralatan = [
-        ['nama' => 'Vacuum', 'lokasi' => 'Lobby Rektorat', 'kondisi' => 'Baik', 'stok' => 'Tersedia', 'icon' => 'bi-wind'],
-        ['nama' => 'Mop', 'lokasi' => 'Lobby Rektorat ITSK Soepraoen', 'kondisi' => 'Rusak', 'stok' => 'Tersedia', 'icon' => 'bi-magic'],
-        ['nama' => 'Cart', 'lokasi' => 'Lobby Rektorat Malang', 'kondisi' => 'Rusak', 'stok' => 'Menipis', 'icon' => 'bi-cart'],
-        ['nama' => 'Chemical Dispenser', 'lokasi' => 'Lobby Rektorat', 'kondisi' => 'Baik', 'stok' => 'Tersedia', 'icon' => 'bi-box'],
-        ['nama' => 'Chemical Dispenser', 'lokasi' => 'Lobby Rektorat', 'kondisi' => 'Rusak', 'stok' => 'Tersedia', 'icon' => 'bi-box-seam'],
-    ];
-}
-
-// Hitung summary
 $total_laporan = count($riwayat);
-$proses_count = 0;
-$selesai_count = 0;
-foreach ($riwayat as $r) {
-    if (stripos($r['status'], 'proses') !== false) $proses_count++;
-    if (stripos($r['status'], 'selesai') !== false) $selesai_count++;
+$proses_count = count(array_filter($riwayat, fn($r) => stripos($r['status'], 'proses') !== false));
+$selesai_count = count(array_filter($riwayat, fn($r) => stripos($r['status'], 'selesai') !== false));
+
+// Proses pengerjaan oleh petugas (hanya status proses/selesai)
+$proses_pengerjaan = [];
+foreach ($data_keluhan as $k) {
+    $status = $k['status'] ?? 'Diajukan';
+    if (stripos($status, 'proses') === false && stripos($status, 'selesai') === false) continue;
+    $proses_pengerjaan[] = [
+        'id' => $k['id_keluhan'] ?? ('ID#' . ($k['id'] ?? 'XXX')),
+        'lokasi' => $k['fasilitas_nama'] ?? ($k['nama'] ?? '-'),
+        'masalah' => $k['catatan'] ?? '-',
+        'status' => $status,
+        'tahapan' => [
+            'Pengajuan laporan' => true,
+            'Diverifikasi petugas' => stripos($status, 'proses') !== false || stripos($status, 'selesai') !== false,
+            'Pengerjaan di lokasi' => stripos($status, 'selesai') !== false,
+        ],
+        'petugas' => $k['petugas'] ?? 'Tim Sanitasi',
+        'catatan_petugas' => $k['catatan_petugas'] ?? ($status === 'Selesai' ? 'Pengerjaan telah selesai.' : 'Sedang dalam penanganan.'),
+    ];
 }
 ?>
 <!DOCTYPE html>
@@ -221,6 +200,21 @@ foreach ($riwayat as $r) {
         .form-section { scroll-margin-top: 90px; }
         #success-alert { scroll-margin-top: 90px; }
 
+        .proses-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .proses-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+        .proses-steps { padding-left: 4px; }
+        .step-circle {
+            width: 22px; height: 22px; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; flex-shrink: 0;
+        }
+        .step-done {
+            background-color: #28a745; color: #fff;
+        }
+        .step-pending {
+            background-color: #e9ecef; color: #6c757d;
+        }
+
         @media (max-width: 768px) {
             .hero-section { min-height: 200px; padding-top: 70px; }
             .content-container { margin-top: -40px; }
@@ -234,11 +228,16 @@ foreach ($riwayat as $r) {
             .table-custom th,
             .table-custom td { padding: 8px 6px; }
             .image-preview-box { height: 150px; }
+            .proses-card { padding: 14px !important; }
+            .proses-card h6 { font-size: 14px !important; }
         }
         @media (max-width: 576px) {
             .hero-section { min-height: 180px; padding-top: 60px; }
             .container-fluid { padding-left: 12px !important; padding-right: 12px !important; }
             .dashboard-card { padding: 10px; }
+            .proses-card .d-flex.justify-content-between:last-child {
+                flex-direction: column; align-items: flex-start !important; gap: 6px;
+            }
         }
     </style>
 </head>
@@ -288,11 +287,6 @@ foreach ($riwayat as $r) {
                                 <?php foreach($fasilitas as $fas): ?>
                                     <option value="<?= $fas['id'] ?>"><?= htmlspecialchars($fas['nama']) ?> (<?= htmlspecialchars($fas['lokasi'] ?? '') ?>)</option>
                                 <?php endforeach; ?>
-                                <?php if(empty($fasilitas)): ?>
-                                    <option value="1">Lobby Rektorat ITSK Soepraoen Malang</option>
-                                    <option value="2">Toilet Lantai 2 FST</option>
-                                    <option value="3">Kantin Mami ITSK Soepraoen Malang</option>
-                                <?php endif; ?>
                             </select>
                         </div>
                     </div>
@@ -399,6 +393,61 @@ foreach ($riwayat as $r) {
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Proses Pengerjaan oleh Petugas -->
+        <h3 class="section-title mt-4">Proses Pengerjaan Petugas</h3>
+        <p class="text-muted mb-3" style="font-size: 13px; margin-top: -10px;">Detail tahapan pengerjaan setiap laporan yang sedang atau sudah ditangani.</p>
+        <div class="row g-3 mb-5">
+            <?php foreach ($proses_pengerjaan as $proses):
+                $is_proses = stripos($proses['status'], 'proses') !== false;
+                $is_selesai = stripos($proses['status'], 'selesai') !== false;
+                $badge_color = $is_proses ? 'warning' : 'success';
+                $badge_text = $is_proses ? 'Sedang Diproses' : 'Selesai';
+                $border_color = $is_proses ? '#ffc107' : '#28a745';
+            ?>
+            <div class="col-lg-6">
+                <div class="dashboard-card proses-card" style="border-left: 4px solid <?= $border_color ?>; padding: 18px;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="text-muted" style="font-size: 11px;"><?= htmlspecialchars($proses['id']) ?></span>
+                        <span class="badge bg-<?= $badge_color ?> text-dark fw-bold" style="font-size: 11px; padding: 5px 12px;">
+                            <?php if ($is_proses): ?><i class="bi bi-arrow-repeat me-1"></i><?php endif; ?>
+                            <?php if ($is_selesai): ?><i class="bi bi-check-circle me-1"></i><?php endif; ?>
+                            <?= $badge_text ?>
+                        </span>
+                    </div>
+                    <h6 class="fw-bold mb-1" style="color: #1a5c38; font-size: 15px;"><?= htmlspecialchars($proses['lokasi']) ?></h6>
+                    <p class="mb-2 text-muted" style="font-size: 12px; line-height: 1.4;"><?= htmlspecialchars($proses['masalah']) ?></p>
+                    
+                    <!-- Progress Steps -->
+                    <div class="proses-steps mb-2">
+                        <?php 
+                        $step_labels = ['Pengajuan laporan', 'Diverifikasi petugas', 'Pengerjaan di lokasi'];
+                        foreach ($step_labels as $i => $label):
+                            $done = isset($proses['tahapan'][$label]) && $proses['tahapan'][$label];
+                            $step_num = $i + 1;
+                        ?>
+                        <div class="d-flex align-items-center mb-1">
+                            <span class="step-circle <?= $done ? 'step-done' : 'step-pending' ?>">
+                                <?php if ($done): ?><i class="bi bi-check"></i><?php else: ?><?= $step_num ?><?php endif; ?>
+                            </span>
+                            <span class="ms-2 <?= $done ? 'text-dark fw-medium' : 'text-muted' ?>" style="font-size: 12px;"><?= $label ?></span>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2 border-top" style="border-color: #f0f0f0 !important;">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-person-badge text-secondary me-1"></i>
+                            <span style="font-size: 11px; color: #6c757d;"><?= htmlspecialchars($proses['petugas']) ?></span>
+                        </div>
+                        <small class="text-muted fst-italic" style="font-size: 11px;">
+                            <i class="bi bi-chat-dots me-1"></i><?= htmlspecialchars($proses['catatan_petugas']) ?>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
         </div>
 
         <!-- Ringkasan Laporan Saya -->
