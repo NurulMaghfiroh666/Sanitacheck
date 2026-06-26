@@ -16,8 +16,8 @@
         <button type="button" class="btn btn-primary text-white fw-bold btn-sm shadow-sm px-3" data-coreui-toggle="modal" data-coreui-target="#addJadwalModal" style="border-radius: 6px;">
             + Buat Jadwal Petugas
         </button>
-        <button type="button" class="btn btn-success text-white fw-bold btn-sm shadow-sm px-3" data-coreui-toggle="modal" data-coreui-target="#addInspeksiModal" style="border-radius: 6px; background-color: #1b5e3a; border-color: #1b5e3a;">
-            + Tambah Inspeksi
+        <button type="button" class="btn btn-success text-white fw-bold btn-sm shadow-sm px-3" data-coreui-toggle="modal" data-coreui-target="#addTugasModal" style="border-radius: 6px; background-color: #1b5e3a; border-color: #1b5e3a;">
+            + Tambah Tugas
         </button>
     </div>
 </div>
@@ -82,9 +82,9 @@
 
 <div class="row g-3">
     <div class="col-lg-8">
-        <div class="card border shadow-sm adaptive-card mb-0" style="border-radius: 10px; min-height: 300px;">
+        <div class="card border shadow-sm adaptive-card mb-0" style="border-radius: 10px;">
             <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center py-2">
-                <h6 class="mb-0 fw-bold text-success"><i class="bi bi-clipboard-check me-2"></i>Data Inspeksi</h6>
+                <h6 class="mb-0 fw-bold text-success"><i class="bi bi-list-task me-2"></i>Daftar Tugas Inspeksi</h6>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -92,180 +92,77 @@
                         <thead style="border-bottom: 1px solid var(--cui-border-color); background-color: var(--cui-tertiary-bg);">
                             <tr>
                                 <th class="text-center text-success py-1 px-3" style="font-size: 0.75rem;">No</th>
-                                <th class="text-success py-1" style="font-size: 0.75rem;">Tanggal</th>
-                                <th class="text-success py-1" style="font-size: 0.75rem;">Petugas</th>
-                                <th class="text-success py-1" style="font-size: 0.75rem;">Lokasi Inspeksi</th>
-                                <th class="text-center text-success py-1" style="font-size: 0.75rem;">Skor</th>
+                                <th class="text-success py-1" style="font-size: 0.75rem;">Judul Tugas</th>
+                                <th class="text-success py-1" style="font-size: 0.75rem;">Fasilitas</th>
+                                <th class="text-success py-1" style="font-size: 0.75rem;">Tanggal Tugas</th>
+                                <th class="text-center text-success py-1" style="font-size: 0.75rem;">Kuota Tim</th>
                                 <th class="text-center text-success py-1" style="font-size: 0.75rem;">Status</th>
                                 <th class="text-center text-success py-1 px-3" style="font-size: 0.75rem;">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody style="font-size: 0.8rem;">
-                            @forelse($inspeksi as $index => $item)
-                            @php
-                                $kebersihan = strtolower($item->kondisi_kebersihan);
-                                $status = 'Perhatian';
-                                $badgeClass = 'bg-warning-subtle text-warning';
-                                
-                                if ($kebersihan == 'baik' && $item->ketersediaan_air == 'Ada' && $item->ketersediaan_sabun == 'Ada' && $item->bau_tidak_sedap == 'Tidak') {
-                                    $status = 'Aman';
-                                    $badgeClass = 'bg-success-subtle text-success';
-                                } elseif ($kebersihan == 'buruk' || $item->ketersediaan_air == 'Tidak Ada' || $item->bau_tidak_sedap == 'Ya') {
-                                    $status = 'Perbaikan';
-                                    $badgeClass = 'bg-danger-subtle text-danger';
-                                }
-                            @endphp
-                            <tr class="border-bottom border-light-subtle">
-                                <td class="text-center text-body py-2">{{ $inspeksi->firstItem() + $index }}</td>
-                                <td class="text-body py-2 text-nowrap">{{ \Carbon\Carbon::parse($item->tanggal_inspeksi)->format('d M y H:i') }}</td>
-                                <td class="text-body py-2">{{ $item->petugas->nama_petugas ?? 'Admin' }}</td>
-                                <td class="text-body py-2">{{ $item->fasilitas->nama_fasilitas ?? '-' }}</td>
-                                <td class="text-center fw-bold py-2">{{ $item->kondisi_kebersihan }}</td>
-                                <td class="text-center py-2">
-                                    <span class="badge {{ $badgeClass }}" style="font-size: 0.65rem;">
-                                        {{ $status }}
-                                    </span>
-                                </td>
-                                <td class="text-center py-2">
-                                    <div class="d-flex justify-content-center gap-1">
-                                        <button type="button" class="btn btn-sm p-1 btn-outline-primary border-0" data-coreui-toggle="modal" data-coreui-target="#editInspeksiModal{{ $item->id }}" title="Edit">
-                                            <svg style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M410.262 80.912l-29.5-29.5a55.154 55.154 0 0 0-77.95 0L68.25 285.974a24.006 24.006 0 0 0-7.029 16.97L48 416l113.056-13.221a24.006 24.006 0 0 0 16.97-7.029L410.262 158.812a55.154 55.154 0 0 0 0-77.9M162.971 371.029L112 368l3.029-50.971L316.941 115.088 364.912 163.059Z"/></svg>
+                        <tbody>
+                            @forelse($tugasInspeksi as $index => $tugas)
+                                <tr>
+                                    <td class="text-center py-2 px-3" style="font-size: 0.8rem;">
+                                        {{ ($tugasInspeksi->currentPage() - 1) * $tugasInspeksi->perPage() + $index + 1 }}
+                                    </td>
+                                    <td class="py-2" style="font-size: 0.8rem;">
+                                        <div class="fw-bold">{{ $tugas->judul }}</div>
+                                        <div class="text-body-secondary small">{{ \Illuminate\Support\Str::limit($tugas->deskripsi, 50) }}</div>
+                                    </td>
+                                    <td class="py-2" style="font-size: 0.8rem;">
+                                        {{ $tugas->fasilitas->nama_fasilitas ?? '-' }}
+                                    </td>
+                                    <td class="py-2" style="font-size: 0.8rem;">
+                                        {{ $tugas->tanggal_tugas->format('d M Y H:i') }}
+                                    </td>
+                                    <td class="text-center py-2" style="font-size: 0.8rem;">
+                                        <span class="badge bg-info bg-opacity-10 text-info">
+                                            {{ $tugas->petugas_terdaftar }}/{{ $tugas->kuota_tim }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center py-2" style="font-size: 0.8rem;">
+                                        @if($tugas->status == 'tersedia')
+                                            <span class="badge bg-success bg-opacity-10 text-success">Tersedia</span>
+                                        @elseif($tugas->status == 'penuh')
+                                            <span class="badge bg-warning bg-opacity-10 text-warning">Penuh</span>
+                                        @elseif($tugas->status == 'selesai')
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary">Selesai</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center py-2 px-3" style="font-size: 0.8rem;">
+                                        <button type="button" class="btn btn-sm btn-outline-info me-1" data-coreui-toggle="modal" data-coreui-target="#detailTugasModal{{ $tugas->id }}" style="border-radius: 4px;" title="Lihat Detail">
+                                            <svg style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 120C114.6 120 16 237.3 16 256s98.6 136 240 136 240-117.3 240-136-98.6-136-240-136zm0 224c-48.6 0-88-39.4-88-88s39.4-88 88-88 88 39.4 88 88-39.4 88-88 88z"/><circle fill="currentColor" cx="256" cy="256" r="48"/></svg>
                                         </button>
-                                        <form action="{{ route('inspeksi.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data inspeksi ini?');">
+                                        <button type="button" class="btn btn-sm btn-outline-primary me-1" data-coreui-toggle="modal" data-coreui-target="#editTugasModal{{ $tugas->id }}" style="border-radius: 4px;" title="Edit">
+                                            <svg class="icon" style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                                <path fill="currentColor" d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 5.4 506.5s12.5 12.3 21.2 12.3h120.3c10.9 0 21.4-4.3 29.2-12l233.4-233.4L291.7 90.3z"/>
+                                            </svg>
+                                        </button>
+                                        <form action="{{ route('tugas-inspeksi.destroy', $tugas->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus tugas ini?');" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm p-1 btn-outline-danger border-0" title="Hapus">
-                                                <svg style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M112 112l20 320c.95 18.49 14.4 32 32 32h184c17.67 0 30.87-13.51 32-32l20-320H112zm280 0v32h24a24 24 0 0 0 0-48H160a24 24 0 0 0 0 48h24v-32H80v-32h352v32z"/></svg>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 4px;">
+                                                <svg class="icon" style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                                    <path fill="currentColor" d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.4 467c1.6 25.3 22.6 45 47.9 45H346.7c25.3 0 46.3-19.7 47.9-45L416 128z"/>
+                                                </svg>
                                             </button>
                                         </form>
-                                        @if($status !== 'Aman' && !in_array(strtolower($item->status_tindak_lanjut), ['selesai', 'dibatalkan']))
-                                        <button type="button" class="btn btn-sm btn-warning text-dark p-1 fw-bold" data-coreui-toggle="modal" data-coreui-target="#tlInspeksiModal{{ $item->id }}" title="Tindak Lanjut" style="border-radius: 4px; font-size: 0.65rem;">
-                                            TL
-                                        </button>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <!-- Modal Edit Inspeksi -->
-                            <div class="modal fade" id="editInspeksiModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
-                              <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
-                                  <div class="modal-header border-bottom-0 pb-0">
-                                    <h5 class="modal-title text-success fw-bold" style="color: #1b5e3a !important;">Edit Inspeksi</h5>
-                                    <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
-                                  </div>
-                                  <div class="modal-body">
-                                    <form action="{{ route('inspeksi.update', $item->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="mb-3">
-                                            <label class="form-label small fw-bold text-success mb-1">Fasilitas</label>
-                                            <select name="fasilitas_id" class="form-select form-select-sm" required style="border-radius: 6px;">
-                                                @foreach($fasilitasList ?? [] as $f)
-                                                    <option value="{{ $f->id }}" {{ $item->fasilitas_id == $f->id ? 'selected' : '' }}>{{ $f->nama_fasilitas }} ({{ $f->lokasi }})</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="row g-2 mb-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-success mb-1">Kondisi Kebersihan</label>
-                                                <select name="kondisi_kebersihan" class="form-select form-select-sm" required>
-                                                    <option value="Baik" {{ $item->kondisi_kebersihan == 'Baik' ? 'selected' : '' }}>Baik</option>
-                                                    <option value="Cukup" {{ $item->kondisi_kebersihan == 'Cukup' ? 'selected' : '' }}>Cukup</option>
-                                                    <option value="Buruk" {{ $item->kondisi_kebersihan == 'Buruk' ? 'selected' : '' }}>Buruk</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-success mb-1">Ketersediaan Air</label>
-                                                <select name="ketersediaan_air" class="form-select form-select-sm" required>
-                                                    <option value="Ada" {{ $item->ketersediaan_air == 'Ada' ? 'selected' : '' }}>Ada / Lancar</option>
-                                                    <option value="Tidak Ada" {{ $item->ketersediaan_air == 'Tidak Ada' ? 'selected' : '' }}>Tidak Ada / Mati</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row g-2 mb-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-success mb-1">Ketersediaan Sabun/Tisu</label>
-                                                <select name="ketersediaan_sabun" class="form-select form-select-sm" required>
-                                                    <option value="Ada" {{ $item->ketersediaan_sabun == 'Ada' ? 'selected' : '' }}>Tersedia</option>
-                                                    <option value="Tidak Ada" {{ $item->ketersediaan_sabun == 'Tidak Ada' ? 'selected' : '' }}>Habis / Tidak Ada</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-bold text-success mb-1">Bau Tidak Sedap</label>
-                                                <select name="bau_tidak_sedap" class="form-select form-select-sm" required>
-                                                    <option value="Tidak" {{ $item->bau_tidak_sedap == 'Tidak' ? 'selected' : '' }}>Tidak (Aman)</option>
-                                                    <option value="Ya" {{ $item->bau_tidak_sedap == 'Ya' ? 'selected' : '' }}>Ya (Bau)</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label small fw-bold text-success mb-1">Catatan</label>
-                                            <textarea name="catatan" class="form-control form-control-sm" rows="2">{{ $item->catatan }}</textarea>
-                                        </div>
-                                        <div class="modal-footer border-top-0 pt-0 px-0 pb-0">
-                                            <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-coreui-dismiss="modal" style="border-radius: 6px; padding: 0.4rem 1rem;">Batal</button>
-                                            <button type="submit" class="btn btn-success text-white btn-sm fw-bold shadow-sm" style="border-radius: 6px; background-color: #1b5e3a; border-color: #1b5e3a; padding: 0.4rem 1rem;">Simpan Perubahan</button>
-                                        </div>
-                                    </form>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <!-- Modal Tindak Lanjut -->
-                            <div class="modal fade" id="tlInspeksiModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
-                              <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
-                                  <div class="modal-header border-bottom-0 pb-0">
-                                    <h5 class="modal-title text-warning fw-bold text-dark">Tindak Lanjut Inspeksi</h5>
-                                    <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
-                                  </div>
-                                  <div class="modal-body">
-                                    <div class="mb-3 p-2 rounded bg-light border">
-                                        <div class="small mb-1">Fasilitas: <strong>{{ $item->fasilitas->nama_fasilitas ?? '-' }}</strong></div>
-                                        <div class="small">Catatan Temuan: <span class="text-danger">{{ $item->catatan ?? 'Kondisi buruk / fasilitas tidak memadai' }}</span></div>
-                                    </div>
-                                    <form action="{{ route('inspeksi.tindak-lanjut', $item->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <div class="mb-3">
-                                            <label class="form-label small fw-bold mb-1">Aksi Tindakan / Alasan Batal <span class="text-danger">*</span></label>
-                                            <textarea name="tindakan" class="form-control form-control-sm" rows="3" placeholder="Deskripsikan tindakan yang telah dilakukan atau alasan pembatalan..." required></textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label small fw-bold mb-1">Skor Evaluasi (0-100) <span class="text-secondary fw-normal">(Opsional)</span></label>
-                                            <input type="number" name="skor" class="form-control form-control-sm" min="0" max="100" placeholder="Contoh: 85">
-                                        </div>
-                                        <div class="modal-footer border-top-0 pt-0 px-0 pb-0 d-flex justify-content-between w-100">
-                                            <button type="submit" name="action" value="batal" class="btn btn-outline-danger btn-sm fw-bold" style="border-radius: 6px; padding: 0.4rem 1rem;">Batalkan TL</button>
-                                            <div class="d-flex gap-2">
-                                                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-coreui-dismiss="modal" style="border-radius: 6px; padding: 0.4rem 1rem;">Tutup</button>
-                                                <button type="submit" name="action" value="selesai" class="btn btn-warning text-dark btn-sm fw-bold shadow-sm" style="border-radius: 6px; padding: 0.4rem 1rem;">Tandai Selesai</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                                    </td>
+                                </tr>
                             @empty
-                            <tr>
-                                <td colspan="7" class="text-center py-5">
-                                    <p class="text-body-secondary mb-0" style="font-size: 0.85rem;">Belum ada data inspeksi yang ditambahkan</p>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-body-secondary">
+                                        Belum ada data tugas inspeksi
+                                    </td>
+                                </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-        <div class="d-flex justify-content-between align-items-center mt-2 pb-3">
-            <div class="text-body-secondary" style="font-size: 0.7rem;">Menampilkan {{ $inspeksi->firstItem() ?? 0 }} sampai {{ $inspeksi->lastItem() ?? 0 }} dari {{ $inspeksi->total() }} Data</div>
-            <div class="mb-0 shadow-sm custom-pagination">
-                {{ $inspeksi->appends(request()->input())->links('pagination::bootstrap-5') }}
+                <div class="card-footer bg-transparent border-top py-2">
+                    {{ $tugasInspeksi->links() }}
+                </div>
             </div>
         </div>
     </div>
@@ -308,41 +205,94 @@
                                 </td>
                                 <td class="text-center py-1.5 px-3">
                                     <div class="d-flex justify-content-center gap-1">
-                                        <button type="button" class="btn btn-sm btn-outline-info p-1 border-0" data-coreui-toggle="modal" data-coreui-target="#detailJadwalModal{{ $jadwal->id }}" title="Lihat Detail">
+                                        <button type="button" class="btn btn-sm btn-outline-info p-1 border-0" data-coreui-toggle="modal" data-coreui-target="#detailJadwalModal{{ $jadwal->id }}" title="Lihat Detail & Kelola">
                                             <svg style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 120C114.6 120 16 237.3 16 256s98.6 136 240 136 240-117.3 240-136-98.6-136-240-136zm0 224c-48.6 0-88-39.4-88-88s39.4-88 88-88 88 39.4 88 88-39.4 88-88 88z"/><circle fill="currentColor" cx="256" cy="256" r="48"/></svg>
                                         </button>
-                                        @if($jadwal->status != 'Selesai' && $jadwal->status != 'Dibatalkan')
-                                        <form action="{{ route('jadwal-petugas.updateStatus', $jadwal->id) }}" method="POST" onsubmit="return confirm('Yakin ingin membatalkan jadwal ini?');">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="status" value="Dibatalkan">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger p-1 border-0" title="Batalkan Jadwal">
-                                                <svg style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 48a208 208 0 1 0 208 208 208 208 0 0 0-208-208Zm0 384a176 176 0 1 1 176-176 176 176 0 0 1-176 176Zm90.5-234.5L288 256l58.5 58.5a16 16 0 0 1-22.6 22.6L265.4 278.6l-58.5 58.5a16 16 0 0 1-22.6-22.6L242.8 256l-58.5-58.5a16 16 0 0 1 22.6-22.6l58.5 58.5 58.5-58.5a16 16 0 0 1 22.6 22.6Z"/></svg>
-                                            </button>
-                                        </form>
-                                        @endif
                                     </div>
                                 </td>
                             </tr>
                             
-                            <!-- Modal Detail Jadwal -->
+                            <!-- Modal Detail Jadwal & Ubah Status -->
                             <div class="modal fade" id="detailJadwalModal{{ $jadwal->id }}" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-sm">
-                                    <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
-                                        <div class="modal-header border-bottom-0 pb-0">
-                                            <h6 class="modal-title fw-bold text-primary">Detail Jadwal Petugas</h6>
-                                            <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.18);">
+                                        <div class="modal-header border-bottom pb-2" style="background: linear-gradient(135deg, #1b5e3a 0%, #2d8f5e 100%); border-radius: 14px 14px 0 0;">
+                                            <h6 class="modal-title fw-bold text-white d-flex align-items-center">
+                                                <svg class="me-2" style="width: 18px; height: 18px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M480 128a64 64 0 0 0-64-64h-16V48h-32v16H144V48h-32v16H96a64 64 0 0 0-64 64v12a4 4 0 0 0 4 4h440a4 4 0 0 0 4-4zm0 36H32v220a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64zm-212 196H176v-32h92zm64-80H176v-32h156z"/></svg>
+                                                Detail Jadwal Petugas
+                                            </h6>
+                                            <button type="button" class="btn-close btn-close-white" data-coreui-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                        <div class="modal-body text-start" style="font-size: 0.8rem;">
-                                            <div class="mb-2"><strong>Petugas:</strong> <br>{{ $jadwal->petugas->nama_petugas ?? '-' }}</div>
-                                            <div class="mb-2"><strong>Fasilitas:</strong> <br>{{ $jadwal->fasilitas->nama_fasilitas ?? '-' }}</div>
-                                            <div class="mb-2"><strong>Tanggal:</strong> <br>{{ \Carbon\Carbon::parse($jadwal->tanggal_mulai)->format('d M Y') }} s/d {{ \Carbon\Carbon::parse($jadwal->tanggal_selesai)->format('d M Y') }}</div>
-                                            <div class="mb-2"><strong>Tugas:</strong> <br>{{ $jadwal->jenis_tugas }}</div>
-                                            <div class="mb-2"><strong>Status:</strong> <br>{{ $jadwal->status }}</div>
-                                            <div class="mb-2"><strong>Catatan:</strong> <br>{{ $jadwal->catatan ?: '-' }}</div>
+                                        <div class="modal-body px-4 pt-3 pb-2">
+                                            <!-- Status Badge -->
+                                            <div class="text-center mb-3">
+                                                @if($jadwal->status == 'Selesai')
+                                                    <span class="badge bg-success px-3 py-2" style="font-size: 0.8rem; border-radius: 20px;">✓ Selesai</span>
+                                                @elseif($jadwal->status == 'Berlangsung')
+                                                    <span class="badge bg-primary px-3 py-2" style="font-size: 0.8rem; border-radius: 20px;">● Berlangsung</span>
+                                                @elseif($jadwal->status == 'Dibatalkan')
+                                                    <span class="badge bg-danger px-3 py-2" style="font-size: 0.8rem; border-radius: 20px;">✕ Dibatalkan</span>
+                                                @else
+                                                    <span class="badge bg-secondary px-3 py-2" style="font-size: 0.8rem; border-radius: 20px;">◷ Menunggu</span>
+                                                @endif
+                                            </div>
+
+                                            <!-- Info Grid -->
+                                            <div class="rounded-3 border p-3 mb-3" style="background-color: var(--cui-tertiary-bg, #f8f9fa);">
+                                                <div class="row g-3">
+                                                    <div class="col-6">
+                                                        <div class="text-body-secondary" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Petugas</div>
+                                                        <div class="fw-bold text-body" style="font-size: 0.85rem;">{{ $jadwal->petugas->nama_petugas ?? '-' }}</div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-body-secondary" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Jenis Tugas</div>
+                                                        <div class="fw-bold text-body" style="font-size: 0.85rem;">{{ $jadwal->jenis_tugas }}</div>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="text-body-secondary" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Fasilitas</div>
+                                                        <div class="fw-bold text-body" style="font-size: 0.85rem;">{{ $jadwal->fasilitas->nama_fasilitas ?? '-' }}</div>
+                                                        <div class="text-body-secondary" style="font-size: 0.75rem;">{{ $jadwal->fasilitas->lokasi ?? '-' }}</div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-body-secondary" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Tanggal Mulai</div>
+                                                        <div class="fw-semibold text-body" style="font-size: 0.85rem;">{{ \Carbon\Carbon::parse($jadwal->tanggal_mulai)->format('d M Y') }}</div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="text-body-secondary" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Tanggal Selesai</div>
+                                                        <div class="fw-semibold text-body" style="font-size: 0.85rem;">{{ \Carbon\Carbon::parse($jadwal->tanggal_selesai)->format('d M Y') }}</div>
+                                                    </div>
+                                                    @if($jadwal->catatan)
+                                                    <div class="col-12">
+                                                        <div class="text-body-secondary" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Catatan</div>
+                                                        <div class="text-body" style="font-size: 0.85rem;">{{ $jadwal->catatan }}</div>
+                                                    </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <!-- Admin: Ubah Status -->
+                                            <div class="border-top pt-3">
+                                                <h6 class="fw-bold mb-2 text-body" style="font-size: 0.8rem;">
+                                                    <svg class="me-1" style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M262.29 192.31a64 64 0 1 0 57.4 57.4 64.13 64.13 0 0 0-57.4-57.4zM416.39 256a154.34 154.34 0 0 1-1.53 20.79l45.21 35.46a10.81 10.81 0 0 1 2.45 13.75l-42.77 74a10.81 10.81 0 0 1-13.14 4.59l-44.9-18.08a16.11 16.11 0 0 0-15.17 1.75A164.48 164.48 0 0 1 325 400.8a15.94 15.94 0 0 0-8.82 12.14l-6.73 47.89a11.08 11.08 0 0 1-10.68 9.17h-85.54a11.11 11.11 0 0 1-10.69-8.87l-6.72-47.82a16.07 16.07 0 0 0-9-12.22 155.3 155.3 0 0 1-21.46-12.57 16.07 16.07 0 0 0-15.11-1.71l-44.89 18.07a10.81 10.81 0 0 1-13.14-4.58l-42.77-74a10.8 10.8 0 0 1 2.45-13.75l38.21-30a16.05 16.05 0 0 0 6-14.08c-.36-4.17-.58-8.33-.58-12.5s.21-8.27.58-12.35a16 16 0 0 0-6.07-13.94l-38.19-30A10.81 10.81 0 0 1 49.48 186l42.77-74a10.81 10.81 0 0 1 13.14-4.59l44.9 18.08a16.11 16.11 0 0 0 15.17-1.75 164.48 164.48 0 0 1 21.55-12.54 15.94 15.94 0 0 0 8.82-12.14l6.73-47.89A11.08 11.08 0 0 1 213.24 42h85.54a11.11 11.11 0 0 1 10.69 8.87l6.72 47.82a16.07 16.07 0 0 0 9 12.22 155.3 155.3 0 0 1 21.46 12.57 16.07 16.07 0 0 0 15.11 1.71l44.89-18.07a10.81 10.81 0 0 1 13.14 4.58l42.77 74a10.8 10.8 0 0 1-2.45 13.75l-38.21 30a16.05 16.05 0 0 0-6.05 14.08c.33 4.14.55 8.3.55 12.47z"/></svg>
+                                                    Ubah Status Jadwal
+                                                </h6>
+                                                <form action="{{ route('jadwal-petugas.updateStatus', $jadwal->id) }}" method="POST" class="d-flex gap-2 align-items-center">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <select name="status" class="form-select form-select-sm" style="border-radius: 6px; font-size: 0.8rem;">
+                                                        <option value="Menunggu" {{ $jadwal->status == 'Menunggu' ? 'selected' : '' }}>◷ Menunggu</option>
+                                                        <option value="Berlangsung" {{ $jadwal->status == 'Berlangsung' ? 'selected' : '' }}>● Berlangsung</option>
+                                                        <option value="Selesai" {{ $jadwal->status == 'Selesai' ? 'selected' : '' }}>✓ Selesai</option>
+                                                        <option value="Dibatalkan" {{ $jadwal->status == 'Dibatalkan' ? 'selected' : '' }}>✕ Dibatalkan</option>
+                                                    </select>
+                                                    <button type="submit" class="btn btn-sm btn-primary fw-bold text-white text-nowrap" style="border-radius: 6px; font-size: 0.8rem; padding: 0.35rem 1rem;">
+                                                        Simpan
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
-                                        <div class="modal-footer border-top-0 pt-0">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary w-100" data-coreui-dismiss="modal" style="border-radius: 6px;">Tutup</button>
+                                        <div class="modal-footer border-top-0 pt-0 px-4 pb-3">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary w-100 fw-semibold" data-coreui-dismiss="modal" style="border-radius: 8px;">Tutup</button>
                                         </div>
                                     </div>
                                 </div>
@@ -426,77 +376,6 @@
   </div>
 </div>
 
-<!-- Modal Tambah Inspeksi -->
-<div class="modal fade" id="addInspeksiModal" tabindex="-1" aria-labelledby="addInspeksiModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
-      <div class="modal-header border-bottom-0 pb-0">
-        <h5 class="modal-title text-success fw-bold" id="addInspeksiModalLabel" style="color: #1b5e3a !important;">Tambah Data Inspeksi</h5>
-        <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form action="{{ route('inspeksi.store') }}" method="POST">
-            @csrf
-            <div class="mb-3">
-                <label class="form-label small fw-bold text-success mb-1">Pilih Fasilitas</label>
-                <select name="fasilitas_id" class="form-select form-select-sm bg-adaptive-input" required style="border-radius: 6px; padding: 0.4rem 2rem 0.4rem 0.75rem;">
-                    <option selected disabled value="">-- Pilih Fasilitas --</option>
-                    @foreach($fasilitasList ?? [] as $f)
-                        <option value="{{ $f->id }}">{{ $f->nama_fasilitas }} ({{ $f->lokasi }})</option>
-                    @endforeach
-                </select>
-            </div>
-            
-            <div class="row g-2 mb-3">
-                <div class="col-md-6">
-                    <label class="form-label small fw-bold text-success mb-1">Kondisi Kebersihan</label>
-                    <select name="kondisi_kebersihan" class="form-select form-select-sm bg-adaptive-input" required>
-                        <option value="Baik">Baik</option>
-                        <option value="Cukup">Cukup</option>
-                        <option value="Buruk">Buruk</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label small fw-bold text-success mb-1">Ketersediaan Air</label>
-                    <select name="ketersediaan_air" class="form-select form-select-sm bg-adaptive-input" required>
-                        <option value="Ada">Ada / Lancar</option>
-                        <option value="Tidak Ada">Tidak Ada / Mati</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="row g-2 mb-3">
-                <div class="col-md-6">
-                    <label class="form-label small fw-bold text-success mb-1">Ketersediaan Sabun/Tisu</label>
-                    <select name="ketersediaan_sabun" class="form-select form-select-sm bg-adaptive-input" required>
-                        <option value="Ada">Tersedia</option>
-                        <option value="Tidak Ada">Habis / Tidak Ada</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label small fw-bold text-success mb-1">Bau Tidak Sedap</label>
-                    <select name="bau_tidak_sedap" class="form-select form-select-sm bg-adaptive-input" required>
-                        <option value="Tidak">Tidak (Aman)</option>
-                        <option value="Ya">Ya (Bau)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label small fw-bold text-success mb-1">Catatan Tambahan</label>
-                <textarea name="catatan" class="form-control form-control-sm bg-adaptive-input" rows="3" placeholder="Masukkan catatan jika ada temuan (opsional)"></textarea>
-            </div>
-            
-            <div class="modal-footer border-top-0 pt-0 px-0 pb-0">
-                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-coreui-dismiss="modal" style="border-radius: 6px; padding: 0.4rem 1rem;">Batal</button>
-                <button type="submit" class="btn btn-success text-white btn-sm fw-bold shadow-sm" style="border-radius: 6px; background-color: #1b5e3a; border-color: #1b5e3a; padding: 0.4rem 1rem;">Simpan Inspeksi</button>
-            </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Tambahan CSS Khusus Tema & Ukuran Minimalis -->
 <style>
     .extra-small {
@@ -548,4 +427,174 @@
         color: #dc3545 !important;
     }
 </style>
+
+<!-- Modal Add Tugas -->
+<div class="modal fade" id="addTugasModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius: 10px;">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold">Tambah Tugas Inspeksi</h5>
+                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('tugas-inspeksi.store') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Fasilitas</label>
+                        <select name="fasilitas_id" class="form-select form-select-sm" required>
+                            <option value="">Pilih Fasilitas</option>
+                            @foreach($fasilitasList as $fasilitas)
+                                <option value="{{ $fasilitas->id }}">{{ $fasilitas->nama_fasilitas }} - {{ $fasilitas->lokasi }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Judul Tugas</label>
+                        <input type="text" name="judul" class="form-control form-control-sm" required placeholder="Masukkan judul tugas">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Deskripsi</label>
+                        <textarea name="deskripsi" class="form-control form-control-sm" rows="3" placeholder="Deskripsi tugas (opsional)"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Kuota Tim (1-10 orang)</label>
+                        <input type="number" name="kuota_tim" class="form-control form-control-sm" min="1" max="10" required value="1">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Tanggal Tugas</label>
+                        <input type="datetime-local" name="tanggal_tugas" class="form-control form-control-sm" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary btn-sm" data-coreui-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success btn-sm" style="background-color: #1b5e3a; border-color: #1b5e3a;">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Tugas -->
+@foreach($tugasInspeksi ?? [] as $tugas)
+<div class="modal fade" id="editTugasModal{{ $tugas->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius: 10px;">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold">Edit Tugas Inspeksi</h5>
+                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('tugas-inspeksi.update', $tugas->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Fasilitas</label>
+                        <select name="fasilitas_id" class="form-select form-select-sm" required>
+                            <option value="">Pilih Fasilitas</option>
+                            @foreach($fasilitasList as $fasilitas)
+                                <option value="{{ $fasilitas->id }}" {{ $tugas->fasilitas_id == $fasilitas->id ? 'selected' : '' }}>{{ $fasilitas->nama_fasilitas }} - {{ $fasilitas->lokasi }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Judul Tugas</label>
+                        <input type="text" name="judul" class="form-control form-control-sm" required value="{{ $tugas->judul }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Deskripsi</label>
+                        <textarea name="deskripsi" class="form-control form-control-sm" rows="3">{{ $tugas->deskripsi }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Kuota Tim (1-10 orang)</label>
+                        <input type="number" name="kuota_tim" class="form-control form-control-sm" min="1" max="10" required value="{{ $tugas->kuota_tim }}">
+                        <small class="text-body-secondary">Petugas terdaftar: {{ $tugas->petugas_terdaftar }}</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Tanggal Tugas</label>
+                        <input type="datetime-local" name="tanggal_tugas" class="form-control form-control-sm" required value="{{ $tugas->tanggal_tugas->format('Y-m-d\TH:i') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Status</label>
+                        <select name="status" class="form-select form-select-sm" required>
+                            <option value="tersedia" {{ $tugas->status == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
+                            <option value="penuh" {{ $tugas->status == 'penuh' ? 'selected' : '' }}>Penuh</option>
+                            <option value="selesai" {{ $tugas->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-top">
+                    <button type="button" class="btn btn-secondary btn-sm" data-coreui-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success btn-sm" style="background-color: #1b5e3a; border-color: #1b5e3a;">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Tugas -->
+<div class="modal fade" id="detailTugasModal{{ $tugas->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 10px;">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold text-success"><i class="bi bi-info-circle me-2"></i>Detail Tugas Inspeksi</h5>
+                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="text-body-secondary small text-uppercase">Judul Tugas</div>
+                        <div class="fw-bold fs-6">{{ $tugas->judul }}</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-body-secondary small text-uppercase">Fasilitas & Lokasi</div>
+                        <div class="fw-bold">{{ $tugas->fasilitas->nama_fasilitas ?? '-' }}</div>
+                        <div class="text-muted small">{{ $tugas->fasilitas->lokasi ?? '-' }}</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-body-secondary small text-uppercase">Tanggal Tugas</div>
+                        <div class="fw-semibold">{{ $tugas->tanggal_tugas->format('d M Y H:i') }}</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-body-secondary small text-uppercase">Status</div>
+                        <div>
+                            @if($tugas->status == 'tersedia')
+                                <span class="badge bg-success bg-opacity-10 text-success">Tersedia</span>
+                            @elseif($tugas->status == 'penuh')
+                                <span class="badge bg-warning bg-opacity-10 text-warning">Penuh</span>
+                            @elseif($tugas->status == 'selesai')
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">Selesai</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="text-body-secondary small text-uppercase">Deskripsi</div>
+                        <div class="p-2 bg-light rounded small">{{ $tugas->deskripsi ?: 'Tidak ada deskripsi' }}</div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="text-body-secondary small text-uppercase">Tim Petugas ({{ $tugas->petugas_terdaftar }}/{{ $tugas->kuota_tim }})</div>
+                        </div>
+                        <ul class="list-group list-group-flush border rounded">
+                            @forelse($tugas->users as $user)
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                                <div>
+                                    <div class="fw-semibold small">{{ $user->petugas->nama_petugas ?? $user->name }}</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Bergabung: {{ \Carbon\Carbon::parse($user->pivot->joined_at)->format('d M Y H:i') }}</div>
+                                </div>
+                            </li>
+                            @empty
+                            <li class="list-group-item text-center text-muted small py-3">Belum ada petugas yang bergabung</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-secondary btn-sm w-100" data-coreui-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
+
 @endsection

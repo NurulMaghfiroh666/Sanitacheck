@@ -11,6 +11,7 @@ use App\Models\Fasilitas;
 use App\Models\Jadwal;
 use App\Models\InspeksiPhoto;
 use App\Models\Petugas;
+use App\Models\TugasInspeksi;
 
 class PetugasAreaController extends Controller
 {
@@ -60,6 +61,7 @@ class PetugasAreaController extends Controller
             'petugas', 'jadwalHariIni', 'inspeksiSelesai', 
             'jadwalSelesai', 'jadwalMenunggu', 'jadwalTerbaru'
         ));
+    }
 
     /**
      * 2. Menampilkan daftar jadwal inspeksi yang ditugaskan kepada petugas
@@ -108,12 +110,12 @@ class PetugasAreaController extends Controller
         // Validasi input yang ketat dan aman dari injeksi
         $validated = $request->validate([
             'fasilitas_id'         => 'required|exists:fasilitas,id',
-            'kondisi_kebersihan'   => 'required|in:baik,cukup,buruk',
-            'ketersediaan_air'     => 'required|boolean', // 1/0
-            'ketersediaan_sabun'   => 'required|boolean', // 1/0
-            'bau_tidak_sedap'      => 'required|boolean', // 1/0
+            'kondisi_kebersihan'   => 'required|in:baik,cukup,buruk,Baik,Cukup,Buruk',
+            'ketersediaan_air'     => 'required', // 1/0 atau Ada/Tidak Ada
+            'ketersediaan_sabun'   => 'required', // 1/0 atau Ada/Tidak Ada
+            'bau_tidak_sedap'      => 'required', // 1/0 atau Ya/Tidak
             'catatan'              => 'nullable|string|max:1000',
-            'status_tindak_lanjut' => 'required|in:aman,perlu dibersihkan,perlu perbaikan',
+            'status_tindak_lanjut' => 'required|in:aman,perlu dibersihkan,perlu perbaikan,Aman,Menunggu,Selesai',
         ]);
 
         try {
@@ -125,16 +127,32 @@ class PetugasAreaController extends Controller
                 return back()->withInput()->with('error', 'Data petugas tidak ditemukan.');
             }
             
+            // Normalisasi nilai agar konsisten dengan format database
+            $kondisi = ucfirst(strtolower($validated['kondisi_kebersihan']));
+            $air = in_array($validated['ketersediaan_air'], ['1', 'Ada', 'ada']) ? 'Ada' : 'Tidak Ada';
+            $sabun = in_array($validated['ketersediaan_sabun'], ['1', 'Ada', 'ada']) ? 'Ada' : 'Tidak Ada';
+            $bau = in_array($validated['bau_tidak_sedap'], ['1', 'Ya', 'ya']) ? 'Ya' : 'Tidak';
+            $statusTL = ucfirst($validated['status_tindak_lanjut']);
+            
+            // Map status tindak lanjut dari form petugas ke format admin
+            $statusMap = [
+                'Aman' => 'Aman',
+                'Perlu dibersihkan' => 'Menunggu',
+                'Perlu perbaikan' => 'Menunggu',
+            ];
+            $statusTL = $statusMap[$statusTL] ?? $statusTL;
+
             // Proses simpan data (Aman dari SQL Injection karena menggunakan Eloquent)
             $inspeksi = new Inspeksi();
-            $inspeksi->petugas_id = $petugas->id; // Using petugas table ID
+            $inspeksi->petugas_id = $userId;
             $inspeksi->fasilitas_id = $validated['fasilitas_id'];
-            $inspeksi->kondisi_kebersihan = $validated['kondisi_kebersihan'];
-            $inspeksi->ketersediaan_air = $validated['ketersediaan_air'];
-            $inspeksi->ketersediaan_sabun = $validated['ketersediaan_sabun'];
-            $inspeksi->bau_tidak_sedap = $validated['bau_tidak_sedap'];
+            $inspeksi->tanggal_inspeksi = now();
+            $inspeksi->kondisi_kebersihan = $kondisi;
+            $inspeksi->ketersediaan_air = $air;
+            $inspeksi->ketersediaan_sabun = $sabun;
+            $inspeksi->bau_tidak_sedap = $bau;
             $inspeksi->catatan = $validated['catatan'];
-            $inspeksi->status_tindak_lanjut = $validated['status_tindak_lanjut'];
+            $inspeksi->status_tindak_lanjut = $statusTL;
             $inspeksi->save();
 
             // Flash message sukses
@@ -313,5 +331,92 @@ class PetugasAreaController extends Controller
         $foto->delete();
 
         return redirect()->route('petugas.upload-foto', $jadwal_id)->with('success', 'Foto berhasil dihapus.');
+    }
+
+    /**
+     * 11. Menampilkan daftar tugas inspeksi yang tersedia untuk diambil
+     */
+    public function tugasInspeksi()
+    {
+        $userId = Auth::id();
+        
+        // Get petugas record
+        $petugas = Petugas::where('user_id', $userId)->first();
+        
+        if (!$petugas) {
+            return redirect()->route('login')->with('error', 'Data petugas tidak ditemukan.');
+        }
+        
+        // Get available tasks (not full and not completed)
+        $tugasTersedia = TugasInspeksi::with(['fasilitas', 'users'])
+            ->where('status', '!=', 'selesai')
+            ->latest()
+            ->get();
+        
+        // Get tasks joined by current user
+        $tugasSaya = TugasInspeksi::with(['fasilitas', 'users'])
+            ->whereHas('users', function($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->where('status', '!=', 'selesai')
+            ->latest()
+            ->get();
+
+        return view('petugas.tugas-inspeksi', compact('tugasTersedia', 'tugasSaya'));
+    }
+
+    /**
+     * 12. Join/Ambil tugas inspeksi
+     */
+    public function joinTugas($tugasId)
+    {
+        $userId = Auth::id();
+        
+        $tugas = TugasInspeksi::findOrFail($tugasId);
+        
+        // Check if task is full
+        if ($tugas->isFull()) {
+            return back()->with('error', 'Tugas ini sudah penuh.');
+        }
+        
+        // Check if user already joined
+        if ($tugas->isUserJoined($userId)) {
+            return back()->with('error', 'Anda sudah bergabung dalam tugas ini.');
+        }
+        
+        // Join the task
+        $tugas->users()->attach($userId);
+        
+        // Update status to full if quota reached
+        if ($tugas->isFull()) {
+            $tugas->update(['status' => 'penuh']);
+        }
+        
+        return back()->with('success', 'Berhasil bergabung dalam tugas inspeksi.');
+    }
+
+    /**
+     * 13. Leave/Keluar dari tugas inspeksi
+     */
+    public function leaveTugas($tugasId)
+    {
+        $userId = Auth::id();
+        
+        $tugas = TugasInspeksi::findOrFail($tugasId);
+        
+        // Check if user is in the task
+        if (!$tugas->isUserJoined($userId)) {
+            return back()->with('error', 'Anda tidak bergabung dalam tugas ini.');
+        }
+        
+        // Leave the task
+        $tugas->users()->detach($userId);
+        
+        // Update status back to tersedia if was full
+        if ($tugas->status === 'penuh') {
+            $tugas->update(['status' => 'tersedia']);
+        }
+        
+        return back()->with('success', 'Berhasil keluar dari tugas inspeksi.');
     }
 }

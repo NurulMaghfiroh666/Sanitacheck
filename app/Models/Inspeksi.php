@@ -15,7 +15,12 @@ class Inspeksi extends Model
         'ketersediaan_sabun',
         'bau_tidak_sedap',
         'catatan',
-        'status_tindak_lanjut'
+        'status_tindak_lanjut',
+        'skor'
+    ];
+
+    protected $casts = [
+        'tanggal_inspeksi' => 'datetime',
     ];
 
     public function fasilitas()
@@ -25,6 +30,6 @@ class Inspeksi extends Model
 
     public function petugas()
     {
-        return $this->belongsTo(Petugas::class, 'petugas_id');
+        return $this->belongsTo(User::class, 'petugas_id');
     }
 }

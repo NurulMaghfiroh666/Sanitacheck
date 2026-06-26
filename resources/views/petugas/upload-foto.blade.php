@@ -39,6 +39,8 @@
                         <span class="badge bg-primary" style="font-size: 0.75rem;">Berlangsung</span>
                         @elseif($jadwal->status == 'Selesai')
                         <span class="badge bg-success" style="font-size: 0.75rem;">Selesai</span>
+                        @elseif($jadwal->status == 'Dibatalkan')
+                        <span class="badge bg-danger" style="font-size: 0.75rem;">Dibatalkan</span>
                         @endif
                     </div>
                 </div>

@@ -67,7 +67,7 @@
             align-items: center;
             font-size: 0.75rem;
             font-weight: 500;
-            width: 25%;
+            width: 20%;
             transition: all 0.2s ease;
         }
 
@@ -140,6 +140,10 @@
         <a href="{{ route('petugas.jadwal') ?? '#' }}" class="bottom-nav-item {{ request()->routeIs('petugas.jadwal') ? 'active' : '' }}">
             <i class="bi bi-calendar2-check"></i>
             <span>Jadwal</span>
+        </a>
+        <a href="{{ route('petugas.tugas-inspeksi') ?? '#' }}" class="bottom-nav-item {{ request()->routeIs('petugas.tugas-inspeksi') ? 'active' : '' }}">
+            <i class="bi bi-list-task"></i>
+            <span>Tugas</span>
         </a>
         <a href="{{ route('petugas.riwayat') ?? '#' }}" class="bottom-nav-item {{ request()->routeIs('petugas.riwayat') ? 'active' : '' }}">
             <i class="bi bi-clock-history"></i>

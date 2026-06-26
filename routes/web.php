@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminLaporanController;
 use App\Http\Controllers\AdminRiwayatTindakLanjutController;
 use App\Http\Controllers\AdminJadwalPetugasController;
+use App\Http\Controllers\TugasInspeksiController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -71,6 +72,12 @@ Route::middleware(['auth'])->group(function () {
         return view('admin.pengaturan');
     })->name('pengaturan');
 
+    // Tugas Inspeksi (Admin)
+    Route::get('/tugas-inspeksi', [TugasInspeksiController::class, 'index'])->name('tugas-inspeksi.index');
+    Route::post('/tugas-inspeksi', [TugasInspeksiController::class, 'store'])->name('tugas-inspeksi.store');
+    Route::put('/tugas-inspeksi/{id}', [TugasInspeksiController::class, 'update'])->name('tugas-inspeksi.update');
+    Route::delete('/tugas-inspeksi/{id}', [TugasInspeksiController::class, 'destroy'])->name('tugas-inspeksi.destroy');
+
 }); // Tutup middleware auth
 
 // ==========================================
@@ -93,4 +100,9 @@ Route::middleware(['auth', 'role:petugas'])->prefix('area-petugas')->name('petug
     // Profil
     Route::get('/profil', [PetugasAreaController::class, 'profil'])->name('profil');
     Route::put('/profil/password', [PetugasAreaController::class, 'updatePassword'])->name('updatePassword');
+    
+    // Tugas Inspeksi (Petugas)
+    Route::get('/tugas-inspeksi', [PetugasAreaController::class, 'tugasInspeksi'])->name('tugas-inspeksi');
+    Route::post('/tugas-inspeksi/{id}/join', [PetugasAreaController::class, 'joinTugas'])->name('tugas-inspeksi.join');
+    Route::post('/tugas-inspeksi/{id}/leave', [PetugasAreaController::class, 'leaveTugas'])->name('tugas-inspeksi.leave');
 });

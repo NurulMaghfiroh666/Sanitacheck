@@ -40,4 +40,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Inspeksi::class, 'petugas_id');
     }
+
+    public function petugas()
+    {
+        return $this->hasOne(Petugas::class, 'user_id');
+    }
+
+    public function tugasInspeksi()
+    {
+        return $this->belongsToMany(TugasInspeksi::class, 'tugas_inspeksi_user')
+            ->withPivot('joined_at')
+            ->withTimestamps();
+    }
 }

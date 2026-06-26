@@ -7,53 +7,57 @@ use App\Models\Inspeksi;
 use App\Models\Fasilitas;
 use App\Models\Petugas;
 use App\Models\Jadwal;
+use App\Models\TugasInspeksi;
 
 class AdminInspeksiController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $status = $request->input('status');
+        try {
+            $search = $request->input('search');
+            $status = $request->input('status');
 
-        $inspeksiQuery = Inspeksi::with(['fasilitas', 'petugas']);
-        $jadwalQuery = Jadwal::with(['fasilitas', 'petugas']);
+            $jadwalQuery = Jadwal::with(['fasilitas', 'petugas']);
+            $tugasQuery = TugasInspeksi::with(['fasilitas', 'users']);
 
-        if ($search) {
-            $inspeksiQuery->where(function($q) use ($search) {
-                $q->whereHas('fasilitas', function($q2) use ($search) {
-                    $q2->where('nama_fasilitas', 'like', "%{$search}%")
-                       ->orWhere('lokasi', 'like', "%{$search}%");
-                })->orWhereHas('petugas', function($q2) use ($search) {
-                    $q2->where('nama_petugas', 'like', "%{$search}%");
+            if ($search) {
+                $jadwalQuery->where(function($q) use ($search) {
+                    $q->whereHas('fasilitas', function($q2) use ($search) {
+                        $q2->where('nama_fasilitas', 'like', "%{$search}%");
+                    })->orWhereHas('petugas', function($q2) use ($search) {
+                        $q2->where('nama_petugas', 'like', "%{$search}%");
+                    });
                 });
-            });
 
-            $jadwalQuery->where(function($q) use ($search) {
-                $q->whereHas('fasilitas', function($q2) use ($search) {
-                    $q2->where('nama_fasilitas', 'like', "%{$search}%");
-                })->orWhereHas('petugas', function($q2) use ($search) {
-                    $q2->where('nama_petugas', 'like', "%{$search}%");
+                $tugasQuery->where(function($q) use ($search) {
+                    $q->where('judul', 'like', "%{$search}%")
+                      ->orWhereHas('fasilitas', function($q2) use ($search) {
+                          $q2->where('nama_fasilitas', 'like', "%{$search}%");
+                      });
                 });
-            });
-        }
-
-        if ($status) {
-            if ($status == 'Tertunda') {
-                $jadwalQuery->where('status', 'Menunggu');
-            } elseif ($status == 'Dalam Proses') {
-                $jadwalQuery->where('status', 'Berlangsung');
-            } elseif ($status == 'Selesai') {
-                $jadwalQuery->where('status', 'Selesai');
             }
+
+            if ($status) {
+                if ($status == 'Tertunda') {
+                    $jadwalQuery->where('status', 'Menunggu');
+                } elseif ($status == 'Dalam Proses') {
+                    $jadwalQuery->where('status', 'Berlangsung');
+                } elseif ($status == 'Selesai') {
+                    $jadwalQuery->where('status', 'Selesai');
+                }
+            }
+
+            $jadwals = $jadwalQuery->latest()->paginate(5, ['*'], 'jadwal_page');
+            $tugasInspeksi = $tugasQuery->latest()->paginate(10, ['*'], 'tugas_page');
+            
+            $fasilitasList = Fasilitas::where('status_aktif', true)->get();
+            $petugasList = Petugas::with('user')->where('status_aktif', true)->get();
+
+            return view('admin.inspeksi', compact('jadwals', 'tugasInspeksi', 'fasilitasList', 'petugasList'));
+        } catch (\Exception $e) {
+            \Log::error('Error in AdminInspeksiController@index: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        $inspeksi = $inspeksiQuery->latest('tanggal_inspeksi')->paginate(10, ['*'], 'inspeksi_page');
-        $jadwals = $jadwalQuery->latest()->paginate(5, ['*'], 'jadwal_page');
-        
-        $fasilitasList = Fasilitas::where('status_aktif', true)->get();
-        $petugasList = Petugas::with('user')->where('status_aktif', true)->get();
-
-        return view('admin.inspeksi', compact('inspeksi', 'jadwals', 'fasilitasList', 'petugasList'));
     }
 
     public function store(Request $request)
