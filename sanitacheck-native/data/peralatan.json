@@ -1,0 +1,9 @@
+[
+  {"id":1,"nama":"Vacuum Cleaner","lokasi":"Lobby Rektorat","kondisi":"Baik","stok":"Tersedia","icon":"bi-wind"},
+  {"id":2,"nama":"Mop","lokasi":"Lobby Rektorat ITSK Soepraoen","kondisi":"Rusak","stok":"Tersedia","icon":"bi-droplet-half"},
+  {"id":3,"nama":"Cart","lokasi":"Lobby Rektorat Malang","kondisi":"Rusak","stok":"Menipis","icon":"bi-cart"},
+  {"id":4,"nama":"Chemical Dispenser","lokasi":"Lobby Rektorat","kondisi":"Baik","stok":"Tersedia","icon":"bi-box"},
+  {"id":5,"nama":"Chemical Dispenser","lokasi":"Lobby Rektorat","kondisi":"Rusak","stok":"Tersedia","icon":"bi-box-seam"},
+  {"id":6,"nama":"Sapu","lokasi":"Gudang Kampus 2","kondisi":"Baik","stok":"Tersedia","icon":"bi-brush-fill"},
+  {"id":7,"nama":"Pel","lokasi":"Gudang Kampus 3","kondisi":"Baik","stok":"Menipis","icon":"bi-droplet-half"}
+]

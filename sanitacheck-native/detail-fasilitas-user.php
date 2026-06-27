@@ -2,48 +2,35 @@
 require_once 'services/api.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+if ($id === 0) { header("Location: beranda-user.php#fasilitas-section"); exit; }
 
-if ($id === 0) {
-    header("Location: fasilitas-user.php");
+$response = getFasilitasById($id);
+if ($response['status'] !== 'success') {
+    header("Location: beranda-user.php#fasilitas-section");
     exit;
-}
-
-// Ambil detail fasilitas
-$response = json_decode(fetchApi("/api/fasilitas/$id"), true);
-if ($response['status'] !== 'success' || empty($response['data'])) {
-    die("Data fasilitas tidak ditemukan.");
 }
 $fasilitas = $response['data'];
 
-// Ambil riwayat inspeksi
-$response_riwayat = json_decode(fetchApi("/api/fasilitas/$id/inspeksi"), true);
-$riwayat = $response_riwayat['status'] == 'success' ? $response_riwayat['data'] : [];
-
-// Ambil 3 inspeksi terakhir
+$inspeksi = getInspeksiByFasilitas($id);
+$riwayat = $inspeksi['data'] ?? [];
 $riwayat_terakhir = array_slice($riwayat, 0, 3);
 
-// Menentukan rekomendasi
-$rekomendasi = '';
-$alert_class = '';
-$status_lower = strtolower($fasilitas['status']);
-
-if ($status_lower == 'bersih') {
+$status_lower = strtolower($fasilitas['status'] ?? '');
+$rekomendasi = 'Fasilitas dalam kondisi buruk. Segera lakukan perbaikan menyeluruh dan hubungi teknisi jika ada kerusakan.';
+$alert_class = 'alert-danger';
+if ($status_lower == 'bersih' || $status_lower == 'bersih dan aman') {
     $rekomendasi = 'Fasilitas dalam kondisi baik. Tetap lakukan pemantauan rutin untuk menjaga kualitas sanitasi.';
     $alert_class = 'alert-success';
 } elseif ($status_lower == 'perlu perhatian') {
     $rekomendasi = 'Ditemukan beberapa masalah ringan. Segera lakukan pembersihan rutin agar fasilitas kembali nyaman digunakan.';
     $alert_class = 'alert-warning';
-} else {
-    $rekomendasi = 'Fasilitas dalam kondisi buruk. Segera lakukan perbaikan menyeluruh dan hubungi teknisi jika ada kerusakan.';
-    $alert_class = 'alert-danger';
 }
 
-// Simulasi Checklist Berdasarkan Status
 $checklist = [
-    'Ketersediaan Air' => $status_lower == 'bersih' || $status_lower == 'perlu perhatian' ? true : false,
-    'Ketersediaan Sabun' => $status_lower == 'bersih' ? true : false,
-    'Tidak Ada Bau' => $status_lower != 'perlu perbaikan' ? true : false,
-    'Lantai Kering & Bersih' => $status_lower == 'bersih' ? true : false
+    'Ketersediaan Air' => $status_lower == 'bersih' || $status_lower == 'perlu perhatian' || $status_lower == 'bersih dan aman',
+    'Ketersediaan Sabun' => $status_lower == 'bersih' || $status_lower == 'bersih dan aman',
+    'Tidak Ada Bau' => $status_lower != 'perlu perbaikan' && $status_lower != 'buruk',
+    'Lantai Kering & Bersih' => $status_lower == 'bersih' || $status_lower == 'bersih dan aman',
 ];
 ?>
 <!DOCTYPE html>
@@ -53,8 +40,30 @@ $checklist = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Fasilitas - SanitaCheck</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/style.css?v=12">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .navbar { background-color: #1a5c38 !important; padding-top: 1rem; padding-bottom: 1rem; }
+        .navbar-nav .nav-link { color: rgba(255,255,255,0.7) !important; font-weight: 500; margin-left: 1rem; font-size: 0.95rem; }
+        .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover { color: #fff !important; font-weight: 600; }
+        .breadcrumb a:hover { text-decoration: underline !important; }
+
+        @media (max-width: 768px) {
+            .container.my-5 { padding-top: 70px !important; }
+            .breadcrumb { font-size: 12px; }
+            h4.fw-bold { font-size: 1.1rem; }
+            .table { font-size: 12px; }
+            .table th, .table td { white-space: nowrap; padding: 8px 6px !important; }
+        }
+        @media (max-width: 576px) {
+            .container.my-5 { padding-top: 60px !important; }
+            h4.fw-bold { font-size: 1rem; }
+            .card-body { padding: 1rem; }
+            .row.g-4 > .col-lg-4, .row.g-4 > .col-lg-8 { padding-left: 8px; padding-right: 8px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -64,7 +73,7 @@ $checklist = [
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="beranda-user.php" class="text-success text-decoration-none">Beranda</a></li>
-            <li class="breadcrumb-item"><a href="fasilitas-user.php" class="text-success text-decoration-none">Fasilitas</a></li>
+            <li class="breadcrumb-item"><a href="beranda-user.php#fasilitas-section" class="text-success text-decoration-none">Fasilitas</a></li>
             <li class="breadcrumb-item active" aria-current="page"><?= htmlspecialchars($fasilitas['nama']) ?></li>
         </ol>
     </nav>
@@ -187,4 +196,5 @@ $checklist = [
     </div>
 </div>
 
+<script id="facility-data-store" type="application/json"><?= json_encode(getFasilitas()['data'], JSON_UNESCAPED_UNICODE) ?></script>
 <?php include 'components/footer.php'; ?>

@@ -1,0 +1,10 @@
+[
+  {"id":1,"nama":"LPPM ITSK Soepraoen","lokasi":"Kampus 2","jenis":"Kantor","status":"Perlu Perhatian","terakhir_inspeksi":"2025-06-26 08:00:00","petugas":"Ahmad Fauzi"},
+  {"id":2,"nama":"Lobby Rektorat ITSK Soepraoen Malang","lokasi":"Kampus 2","jenis":"Lobby","status":"Perlu Perhatian","terakhir_inspeksi":"2025-06-26 09:00:00","petugas":"Budi Santoso"},
+  {"id":3,"nama":"Wastafel Cuci Tangan","lokasi":"Kampus 4","jenis":"Wastafel","status":"Perlu Dibersihkan","terakhir_inspeksi":"2025-06-25 10:00:00","petugas":"Citra Dewi"},
+  {"id":4,"nama":"Kantin Mami ITSK Soepraoen Malang","lokasi":"Kampus 3","jenis":"Kantin","status":"Buruk","terakhir_inspeksi":"2025-06-25 11:00:00","petugas":"Dian Permata"},
+  {"id":5,"nama":"Toilet Lantai 2 FST","lokasi":"Kampus 3","jenis":"Toilet","status":"Bersih dan Aman","terakhir_inspeksi":"2025-06-24 08:30:00","petugas":"Eko Prasetyo"},
+  {"id":6,"nama":"Toilet Lantai 1 FST","lokasi":"Kampus 3","jenis":"Toilet","status":"Buruk","terakhir_inspeksi":"2025-06-24 09:00:00","petugas":"Ahmad Fauzi"},
+  {"id":7,"nama":"Kantin Mami ITSK","lokasi":"Kampus 2","jenis":"Kantin","status":"Perlu Dibersihkan","terakhir_inspeksi":"2025-06-23 10:00:00","petugas":"Budi Santoso"},
+  {"id":8,"nama":"Wastafel Lantai 2","lokasi":"Kampus 4","jenis":"Wastafel","status":"Bersih dan Aman","terakhir_inspeksi":"2025-06-23 11:00:00","petugas":"Citra Dewi"}
+]
