@@ -88,7 +88,7 @@
             @foreach($jadwal->photos as $photo)
             <div class="col-md-4 mb-3">
                 <div class="card border shadow-sm" style="border-radius: 12px;">
-                    <img src="{{ asset('storage/' . $photo->foto_path) }}" alt="Foto Inspeksi" class="card-img-top" style="height: 200px; object-fit: cover; border-radius: 12px 12px 0 0;">
+                    <img src="{{ asset('storage/' . $photo->foto_path) }}" alt="Foto Inspeksi" class="card-img-top" style="height: 200px; object-fit: cover; border-radius: 12px 12px 0 0; cursor: pointer;" onclick="openPreview('{{ asset('storage/' . $photo->foto_path) }}')">
                     <div class="card-body p-3">
                         <div class="small text-body-secondary mb-1">Diunggah oleh: {{ $photo->petugas->nama_petugas ?? '-' }}</div>
                         <div class="small text-body-secondary">Tanggal: {{ $photo->created_at->format('d/m/Y H:i') }}</div>
@@ -104,4 +104,35 @@
     </div>
 </div>
 
+<!-- Modal Preview Foto (Lightbox) -->
+<div class="modal fade" id="modalPreviewFoto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0 pb-0 justify-content-end">
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="previewImage" src="" class="img-fluid rounded shadow" style="max-height: 80vh;" alt="Preview Foto">
+                <div class="mt-3">
+                    <a id="downloadImageBtn" href="" download class="btn btn-primary" style="border-radius: 8px; font-weight: 600;">
+                        <i class="bi bi-download me-1"></i> Download Foto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+    // Preview image
+    function openPreview(src) {
+        document.getElementById('previewImage').src = src;
+        document.getElementById('downloadImageBtn').href = src;
+        var modal = new bootstrap.Modal(document.getElementById('modalPreviewFoto'));
+        modal.show();
+    }
+</script>
+@endpush

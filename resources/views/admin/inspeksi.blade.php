@@ -242,6 +242,25 @@
                                                 </div>
                                             </div>
 
+                                            <!-- Foto Inspeksi -->
+                                            <div class="mb-3">
+                                                <h6 class="fw-bold mb-2 text-body" style="font-size: 0.8rem;">Bukti Foto Inspeksi</h6>
+                                                @if($jadwal->photos->isEmpty())
+                                                    <div class="text-center py-3 bg-light rounded" style="border-radius: 8px;">
+                                                        <i class="bi bi-images text-secondary" style="font-size: 1.5rem;"></i>
+                                                        <p class="text-muted mt-1 mb-0" style="font-size: 0.75rem;">Belum ada foto.</p>
+                                                    </div>
+                                                @else
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        @foreach($jadwal->photos as $photo)
+                                                            <div class="position-relative" style="width: 80px; height: 80px; cursor: pointer;" onclick="openPreview('{{ asset('storage/' . $photo->foto_path) }}')">
+                                                                <img src="{{ asset('storage/' . $photo->foto_path) }}" alt="Foto" class="img-fluid rounded shadow-sm" style="width: 100%; height: 100%; object-fit: cover;">
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                            </div>
+
                                             <!-- Admin: Ubah Status -->
                                             <div class="border-top pt-3">
                                                 <h6 class="fw-bold mb-2 text-body" style="font-size: 0.8rem;">
@@ -569,4 +588,35 @@
 </div>
 @endforeach
 
+<!-- Modal Preview Foto (Lightbox) -->
+<div class="modal fade" id="modalPreviewFoto" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0 pb-0 justify-content-end">
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="previewImage" src="" class="img-fluid rounded shadow" style="max-height: 80vh;" alt="Preview Foto">
+                <div class="mt-3">
+                    <a id="downloadImageBtn" href="" download class="btn btn-primary" style="border-radius: 8px; font-weight: 600;">
+                        <i class="bi bi-download me-1"></i> Download Foto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+    // Preview image
+    function openPreview(src) {
+        document.getElementById('previewImage').src = src;
+        document.getElementById('downloadImageBtn').href = src;
+        var modal = new coreui.Modal(document.getElementById('modalPreviewFoto'));
+        modal.show();
+    }
+</script>
+@endpush

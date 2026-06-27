@@ -2,10 +2,8 @@
 /**
  * Script untuk ekstrak file ZIP yang sudah dipecah menjadi parts
  * Letakkan file ini di htdocs bersama project_deploy.zip.001, .002, dst.
- * 
- * Akses: domain.com/unzip.php
- * 
- * ⚠️ JANGAN LUPA HAPUS FILE INI SETELAH SELESAI!
+ * * Akses: domain.com/unzip.php
+ * * ⚠️ JANGAN LUPA HAPUS FILE INI SETELAH SELESAI!
  */
 
 set_time_limit(600);
@@ -19,6 +17,44 @@ $searchDir = dirname(__DIR__);
 $action = $_GET['action'] ?? 'check';
 $status = $_SESSION['unzip_status'] ?? [];
 
+/**
+ * Fungsi untuk mengosongkan direktori secara rekursif kecuali item tertentu
+ */
+function deleteFolderExcept($dir, $except = []) {
+    if (!is_dir($dir)) return false;
+    
+    $items = array_diff(scandir($dir), ['.', '..']);
+    foreach ($items as $item) {
+        $path = $dir . '/' . $item;
+        
+        // Cek apakah item ini masuk dalam daftar pengecualian
+        if (in_array($item, $except)) {
+            continue; 
+        }
+        
+        // LINDUNGI file ZIP deployment agar tidak terhapus
+        if (preg_match('/^project_deploy_\d{3}\.zip$/', $item)) {
+            continue;
+        }
+        
+        if (is_dir($path)) {
+            deleteFolderRecursive($path);
+        } else {
+            @unlink($path);
+        }
+    }
+    return true;
+}
+
+function deleteFolderRecursive($dir) {
+    if (!is_dir($dir)) return false;
+    $items = array_diff(scandir($dir), ['.', '..']);
+    foreach ($items as $item) {
+        $path = $dir . '/' . $item;
+        is_dir($path) ? deleteFolderRecursive($path) : @unlink($path);
+    }
+    return @rmdir($dir);
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -128,6 +164,7 @@ $status = $_SESSION['unzip_status'] ?? [];
             display: flex;
             gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         
         button {
@@ -165,6 +202,17 @@ $status = $_SESSION['unzip_status'] ?? [];
         
         .btn-secondary:hover {
             background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #bd2130;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
         }
         
         .file-list {
@@ -286,17 +334,20 @@ $status = $_SESSION['unzip_status'] ?? [];
                 echo '<h3>❌ Tidak ada file ZIP ditemukan</h3>';
                 echo '<p>Pastikan file project_deploy_xxx.zip sudah di-upload ke direktori htdocs.</p>';
                 echo '</div>';
-                exit;
+            } else {
+                echo '<div class="status-box warning">';
+                echo '<h3>⚠️ Proses Ekstrak</h3>';
+                echo '<p>Ditemukan ' . count($parts) . ' file ZIP. Klik tombol di bawah untuk mulai ekstrak.</p>';
+                echo '<p style="margin-top: 10px; font-size: 12px; color: #999;">Proses ini bisa memakan waktu 2-5 menit.</p>';
+                echo '</div>';
             }
             
-            echo '<div class="status-box warning">';
-            echo '<h3>⚠️ Proses Ekstrak</h3>';
-            echo '<p>Ditemukan ' . count($parts) . ' file ZIP. Klik tombol di bawah untuk mulai ekstrak.</p>';
-            echo '<p style="margin-top: 10px; font-size: 12px; color: #999;">Proses ini bisa memakan waktu 2-5 menit.</p>';
-            echo '</div>';
-            
             echo '<div class="button-group">';
-            echo '<button class="btn-primary" onclick="startExtract()">🚀 Mulai Ekstrak</button>';
+            echo '<button class="btn-secondary" onclick="if(confirm(\'PENTING: Fitur ini akan menghapus semua file Laravel lama di hosting sebelum mengekstrak yang baru. \n\nFile .env, .zip, dan foto inspeksi (public/storage/inspeksi-photos) akan DIPERTAHANKAN dan AMAN. \n\nLanjutkan penghapusan?\')) window.location.href=\'?action=cleanup_old\';">🧹 Hapus File Lama</button>';
+            if (!empty($parts)) {
+                echo '<button class="btn-primary" onclick="startExtract()">🚀 Mulai Ekstrak</button>';
+            }
+            echo '<button class="btn-danger" onclick="confirmClearHtdocs()">🗑️ Kosongkan htdocs</button>';
             echo '</div>';
             
             echo '<script>';
@@ -305,7 +356,100 @@ $status = $_SESSION['unzip_status'] ?? [];
             echo '    window.location.href = "?action=extract";';
             echo '  }';
             echo '}';
+            echo 'function confirmClearHtdocs() {';
+            echo '  if(confirm("PERINGATAN! Tindakan ini akan menghapus total isi htdocs KECUALI file .env dan folder public.\\n\\nApakah Anda yakin?")) {';
+            echo '    if(confirm("Konfirmasi terakhir: Anda benar-benar ingin mengosongkan data lainnya?")) {';
+            echo '      window.location.href = "?action=clear_htdocs";';
+            echo '    }';
+            echo '  }';
+            echo '}';
             echo '</script>';
+            exit;
+        }
+
+        // ACTION: Kosongkan htdocs secara agresif kecuali .env dan public
+        if ($action === 'clear_htdocs') {
+            $currentScript = basename(__FILE__);
+            $exceptions = ['.env', 'public', $currentScript];
+            
+            echo '<div class="status-box">';
+            echo '<h3><span class="spinner"></span>Mengosongkan direktori htdocs...</h3>';
+            echo '</div>';
+            
+            $success = deleteFolderExcept($extractDir, $exceptions);
+            
+            if ($success) {
+                echo '<div class="status-box success">';
+                echo '<h3>✅ htdocs Berhasil Dikosongkan!</h3>';
+                echo '<p>Isi htdocs telah dibersihkan. Hanya file <code>.env</code>, folder <code>public/</code>, dan skrip ini yang dipertahankan.</p>';
+                echo '</div>';
+            } else {
+                echo '<div class="status-box error">';
+                echo '<h3>❌ Pengosongan Gagal</h3>';
+                echo '<p>Terjadi kendala hak akses (permission) saat menghapus beberapa file.</p>';
+                echo '</div>';
+            }
+            
+            echo '<div class="button-group">';
+            echo '<button class="btn-secondary" onclick="window.location.href=\'?action=check\'">← Kembali</button>';
+            echo '</div>';
+            exit;
+        }
+        
+        // ACTION: Hapus file lama (Bawaan skrip Anda yang pakai regex patterns)
+        if ($action === 'cleanup_old') {
+            echo '<div class="status-box">';
+            echo '<h3><span class="spinner"></span>Menghapus file project lama...</h3>';
+            
+            // Fungsi rekursif untuk menghapus direktori dengan sistem perlindungan (exclude)
+            function deleteDirectorySafe($dir, $exclude = []) {
+                if (!file_exists($dir)) return true;
+                if (!is_dir($dir)) return @unlink($dir);
+                
+                foreach (scandir($dir) as $item) {
+                    if ($item == '.' || $item == '..') continue;
+                    
+                    $path = $dir . DIRECTORY_SEPARATOR . $item;
+                    $relativePath = str_replace(dirname(__DIR__) . DIRECTORY_SEPARATOR, '', $path);
+                    $relativePath = str_replace('\\', '/', $relativePath);
+                    
+                    // Cek apakah file/folder ini dilindungi
+                    $shouldExclude = false;
+                    foreach ($exclude as $exc) {
+                        if (preg_match($exc, $relativePath)) {
+                            $shouldExclude = true;
+                            break;
+                        }
+                    }
+                    
+                    if ($shouldExclude) continue;
+                    
+                    if (is_dir($path)) {
+                        deleteDirectorySafe($path, $exclude);
+                        @rmdir($path); // Hanya akan terhapus jika kosong
+                    } else {
+                        @unlink($path);
+                    }
+                }
+                return true;
+            }
+            
+            // Regex patterns untuk melindungi file berharga
+            $protectedFiles = [
+                '/^unzip\.php$/',                            // Script ini
+                '/^project_deploy_\d{3}\.zip$/',            // File Part ZIP
+                '/^\.env$/',                                // File Konfigurasi DB
+                '/^\.env\.production$/',                    // File Konfigurasi Baru
+                '/^public\/storage\/inspeksi-photos/',      // FOTO INSPEKSI PENGGUNA!
+            ];
+            
+            deleteDirectorySafe($extractDir, $protectedFiles);
+            
+            echo '<div class="status-box success">✅ File project lama berhasil dibersihkan! Lingkungan sudah bersih.</div>';
+            echo '<div class="button-group">';
+            echo '<button class="btn-primary" onclick="window.location.href=\'?action=extract\'">Lanjut Ekstrak ZIP Sekarang</button>';
+            echo '</div>';
+            echo '</div>';
             exit;
         }
         
@@ -376,11 +520,9 @@ $status = $_SESSION['unzip_status'] ?? [];
             echo '<h3>✅ Selesai!</h3>';
             echo '<p>Langkah berikutnya:</p>';
             echo '<ol style="margin-left: 20px; margin-top: 10px; font-size: 14px;">';
-            echo '<li style="margin-bottom: 8px;"><strong>Buat file .env</strong> di root project (copy dari .env.example)</li>';
-            echo '<li style="margin-bottom: 8px;"><strong>Isi DB credentials</strong> sesuai hosting Anda</li>';
-            echo '<li style="margin-bottom: 8px;"><strong>Salin APP_KEY:</strong> Buka file <code>.env</code> Anda di lokal, copy nilai <code>APP_KEY=...</code> dan paste ke <code>.env</code> di server.</li>';
-            echo '<li style="margin-bottom: 8px;"><strong>Import Database:</strong> Buka phpMyAdmin di Control Panel InfinityFree, lalu import file database SQL dari lokal Anda.</li>';
-            echo '<li style="margin-bottom: 8px;"><strong>Catatan:</strong> Folder <code>vendor/</code> sudah termasuk di dalam ZIP, sehingga Anda <b>tidak perlu</b> menjalankan composer install.</li>';
+            echo '<li style="margin-bottom: 8px;"><strong>Ubah nama file</strong> <code>.env.production</code> menjadi <code>.env</code> menggunakan File Manager.</li>';
+            echo '<li style="margin-bottom: 8px;"><strong>Edit file .env</strong> tersebut, and isi detail <code>DB_DATABASE</code>, <code>DB_USERNAME</code>, dan <code>DB_PASSWORD</code>.</li>';
+            echo '<li style="margin-bottom: 8px;">Akses browser ke: <a href="/deploy-setup.php" target="_blank" style="font-weight:bold;color:#1565c0;">domain.com/deploy-setup.php</a> untuk setup tahap akhir.</li>';
             echo '<li><strong>HAPUS file unzip.php ini!</strong></li>';
             echo '</ol>';
             echo '</div>';

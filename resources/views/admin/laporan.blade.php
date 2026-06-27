@@ -8,65 +8,7 @@
     <p class="text-body-secondary" style="font-size: 0.9rem;">Rekapitulasi hasil inspeksi sanitasi dan kebersihan fasilitas umum</p>
 </div>
 
-<!-- Filter Section -->
-<div class="card border shadow-sm mb-3" style="border-radius: 12px;">
-    <div class="card-body p-3">
-        <h6 class="text-success fw-bold mb-3">FILTER LAPORAN</h6>
-        <div class="row g-2">
-            <div class="col-md-3 col-lg-2">
-                <label class="form-label small fw-semibold text-body-secondary mb-1">Periode</label>
-                <input type="text" class="form-control form-control-sm" value="01/05/2025 – 22/05/2025" style="font-size: 0.8rem; border-radius: 6px;">
-            </div>
-            <div class="col-md-3 col-lg-2">
-                <label class="form-label small fw-semibold text-body-secondary mb-1">Jenis Fasilitas</label>
-                <select class="form-select form-select-sm" style="font-size: 0.8rem; border-radius: 6px;">
-                    <option selected>Semua Jenis</option>
-                    <option>Toilet</option>
-                    <option>Kantin</option>
-                    <option>Wastafel</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-lg-2">
-                <label class="form-label small fw-semibold text-body-secondary mb-1">Lokasi</label>
-                <select class="form-select form-select-sm" style="font-size: 0.8rem; border-radius: 6px;">
-                    <option selected>Semua Lokasi</option>
-                    <option>Gedung A</option>
-                    <option>Gedung B</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-lg-2">
-                <label class="form-label small fw-semibold text-body-secondary mb-1">Petugas</label>
-                <select class="form-select form-select-sm" style="font-size: 0.8rem; border-radius: 6px;">
-                    <option selected>Semua Petugas</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-lg-2">
-                <label class="form-label small fw-semibold text-body-secondary mb-1">Status Sanitasi</label>
-                <select class="form-select form-select-sm" style="font-size: 0.8rem; border-radius: 6px;">
-                    <option selected>Semua Kondisi</option>
-                    <option>Baik</option>
-                    <option>Cukup</option>
-                    <option>Buruk</option>
-                </select>
-            </div>
-            <div class="col-md-3 col-lg-2">
-                <label class="form-label small fw-semibold text-body-secondary mb-1">Status Tindak Lanjut</label>
-                <select class="form-select form-select-sm" style="font-size: 0.8rem; border-radius: 6px;">
-                    <option selected>Semua Status</option>
-                    <option>Selesai</option>
-                    <option>Dalam Proses</option>
-                </select>
-            </div>
-        </div>
-        <div class="d-flex gap-2 mt-3">
-            <button class="btn btn-sm btn-outline-success fw-bold" style="border-radius: 6px; border-color: #1b5e3a; color: #1b5e3a;">Reset Filter</button>
-            <button class="btn btn-sm btn-success text-white fw-bold" style="border-radius: 6px; background-color: #1b5e3a; border-color: #1b5e3a;">
-                <svg class="icon me-1" style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M3.853 54.87A10 10 0 0 0 13 65.51L65 53v424a10 10 0 0 0 18.18 5.87L182 348h146a10 10 0 0 0 8.18-14.13L206.18 54.87A10 10 0 0 0 198 48H18V10A10 10 0 0 0 3.853 4.13Z"/></svg>
-                Terapkan Filter
-            </button>
-        </div>
-    </div>
-</div>
+
 
 <!-- KPI Cards -->
 <div class="row mb-3">

@@ -13,9 +13,9 @@ class AdminTindakLanjutController extends Controller
         $tindakLanjutQuery = Inspeksi::with(['fasilitas', 'petugas'])
             ->where(function($q) {
                 $q->where('kondisi_kebersihan', '!=', 'Baik')
-                  ->orWhere('ketersediaan_air', 'Tidak Ada')
-                  ->orWhere('ketersediaan_sabun', 'Tidak Ada')
-                  ->orWhere('bau_tidak_sedap', 'Ya');
+                  ->orWhere('ketersediaan_air', 0)
+                  ->orWhere('ketersediaan_sabun', 0)
+                  ->orWhere('bau_tidak_sedap', 1);
             });
             
         $dataTindakLanjut = $tindakLanjutQuery->latest('tanggal_inspeksi')->paginate(10);

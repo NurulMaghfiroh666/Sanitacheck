@@ -7,17 +7,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        @keyframes bgPan {
+            0%   { transform: translateX(0) scale(1.15); }
+            50%  { transform: translateX(-8%) scale(1.15); }
+            100% { transform: translateX(0) scale(1.15); }
+        }
+
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
             height: 100vh;
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* Menggeser card ke kiri di desktop */
-            background: url("{{ asset('assets/image/background-1.png') }}") no-repeat center center fixed;
-            background-size: cover;
-            padding-left: 8%; /* Jarak dari sisi kiri layar di desktop */
+            justify-content: flex-start;
+            padding-left: 8%;
             position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("{{ asset('assets/image/background-1.png') }}") no-repeat center center;
+            background-size: cover;
+            transform: scale(1.15);
+            animation: bgPan 20s ease-in-out infinite;
+            z-index: 0;
         }
         
         /* Header Instansi di pojok kanan atas */

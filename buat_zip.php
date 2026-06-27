@@ -184,7 +184,7 @@ $excludePathPatterns = [
     'storage/framework/cache/',
     'storage/framework/sessions/',
     'storage/framework/views/',
-    'storage/app/public/inspeksi-photos/',  // User uploaded photos (tidak perlu di deployment)
+    'public/storage/inspeksi-photos/',  // User uploaded photos (tidak perlu di deployment)
 ];
 
 // ============================================================
@@ -373,6 +373,7 @@ foreach ($emptyButRequired as $dir) {
 }
 
 if (file_exists('.env.example')) @$zip->addFile('.env.example', '.env.example');
+if (file_exists('.env.production')) @$zip->addFile('.env.production', '.env.production');
 if (file_exists('README.md')) @$zip->addFile('README.md', 'README.md');
 
 // Tutup zip terakhir
@@ -393,37 +394,28 @@ echo "   • Waktu proses: $elapsedTime detik\n\n";
 
 echo "🚀 LANGKAH DEPLOY KE INFINITYFREE:\n";
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-echo "1️⃣ Upload semua file project_deploy_xxx.zip ke folder 'htdocs'\n";
+echo "1️⃣ Upload SEMUA file project_deploy_xxx.zip ke folder 'htdocs' di hosting\n";
 echo "   (Gunakan FTP Manager atau File Manager hosting)\n\n";
 
-echo "2️⃣ Buat folder 'public' di htdocs, lalu buat file 'unzip.php' di dalamnya dengan kode berikut:\n";
-echo "   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-echo file_get_contents(__DIR__ . '/public/unzip.php') ?: "   (Lihat template di github)\n";
-echo "   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n";
+echo "2️⃣ Upload file 'public/unzip.php' (atau buat file unzip.php di htdocs)\n";
+echo "   lalu akses browser: domain.com/unzip.php untuk mulai ekstrak\n\n";
 
-echo "3️⃣ Akses browser: domain.com/unzip.php untuk mulai ekstrak\n\n";
+echo "3️⃣ Setup Konfigurasi (.env):\n";
+echo "   • Di File Manager hosting, ubah nama file '.env.production' menjadi '.env'\n";
+echo "   • Edit file '.env' tersebut, isi DB_DATABASE, DB_USERNAME, dan DB_PASSWORD\n";
+echo "   • Format DB Host: DB_HOST=sql306.infinityfree.com (sesuai panel anda)\n\n";
 
-echo "4️⃣ Setelah ekstrak selesai, MANUAL SETUP di hosting:\n";
-echo "   A. Buat file .env di folder root:\n";
-echo "      • Copy dari .env.example\n";
-echo "      • Isi: DB_HOST, DB_DATABASE, DB_USERNAME, DB_PASSWORD\n";
-echo "      • Format: DB_HOST=localhost (atau IP hosting)\n\n";
+echo "4️⃣ Database Setup (via phpMyAdmin):\n";
+echo "   • Buat database di panel InfinityFree\n";
+echo "   • Buka phpMyAdmin, JANGAN import SQL manual (akan dilakukan otomatis nanti)\n\n";
 
-echo "5️⃣ Konfigurasi Database (via phpMyAdmin):\n";
-echo "   • Buat database baru di panel InfinityFree\n";
-echo "   • Buka phpMyAdmin, import file SQL dari lokal Anda\n\n";
-
-echo "6️⃣ Setup .env & APP_KEY (via File Manager):\n";
-echo "   • Salin nilai APP_KEY=... dari file .env lokal Anda\n";
-echo "   • Paste ke dalam file .env di htdocs hosting Anda\n\n";
-
-echo "7️⃣ Test aplikasi di browser: domain.com\n\n";
+echo "5️⃣ Jalankan Setup Script:\n";
+echo "   • Akses browser: domain.com/deploy-setup.php\n";
+echo "   • Script ini akan otomatis membuat symlink storage dan menjalankan MIGRATIONS\n\n";
 
 echo "⚠️  PENTING:\n";
-echo "   • HAPUS file unzip.php setelah selesai!\n";
-echo "   • JANGAN upload project.zip yang utuh (akan ditolak)\n";
-echo "   • Pastikan DB credentials benar di .env\n";
-echo "   • Check storage/logs untuk error messages\n\n";
+echo "   • HAPUS file unzip.php dan deploy-setup.php setelah setup sukses!\n";
+echo "   • JANGAN upload project.zip yang utuh, gunakan part zip (project_deploy_xxx.zip)\n\n";
 
 echo "✅ Siap untuk deployment!\n";
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";

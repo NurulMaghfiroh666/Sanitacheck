@@ -127,7 +127,7 @@
                         </td>
                         <td class="text-body-secondary small py-2" style="font-size: 0.75rem;">{{ \Carbon\Carbon::parse($item->tanggal_inspeksi)->format('d M Y H:i') }}</td>
                         <td class="text-body-secondary small py-2" style="font-size: 0.75rem;">{{ \Carbon\Carbon::parse($item->tanggal_inspeksi)->addDays(2)->format('d M Y') }}</td>
-                        <td class="text-body-secondary small py-2">{{ $item->petugas->name ?? 'Admin' }}</td>
+                        <td class="text-body-secondary small py-2">{{ $item->petugas->nama_petugas ?? 'Admin' }}</td>
                         <td class="text-center py-2">
                             <span class="badge bg-{{ $statusBadge }}" style="font-size: 0.7rem; min-width: 90px;">{{ $item->status_tindak_lanjut ?? 'Menunggu' }}</span>
                         </td>

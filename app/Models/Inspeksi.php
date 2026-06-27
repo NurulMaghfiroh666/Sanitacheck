@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Inspeksi extends Model
 {
@@ -23,6 +24,30 @@ class Inspeksi extends Model
         'tanggal_inspeksi' => 'datetime',
     ];
 
+    protected function ketersediaanAir(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? 'Ada' : 'Tidak Ada',
+            set: fn ($value) => in_array(strtolower((string)$value), ['1', 'ada', 'ya', 'true']) ? 1 : 0,
+        );
+    }
+
+    protected function ketersediaanSabun(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? 'Ada' : 'Tidak Ada',
+            set: fn ($value) => in_array(strtolower((string)$value), ['1', 'ada', 'ya', 'true']) ? 1 : 0,
+        );
+    }
+
+    protected function bauTidakSedap(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? 'Ya' : 'Tidak',
+            set: fn ($value) => in_array(strtolower((string)$value), ['1', 'ya', 'ada', 'true']) ? 1 : 0,
+        );
+    }
+
     public function fasilitas()
     {
         return $this->belongsTo(Fasilitas::class);
@@ -30,6 +55,6 @@ class Inspeksi extends Model
 
     public function petugas()
     {
-        return $this->belongsTo(User::class, 'petugas_id');
+        return $this->belongsTo(Petugas::class, 'petugas_id');
     }
 }

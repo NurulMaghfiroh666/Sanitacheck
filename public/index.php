@@ -4,11 +4,7 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Check if the request is for the landing page
-if ($_SERVER['REQUEST_URI'] === '/' || $_SERVER['REQUEST_URI'] === '/index.php') {
-    header('Location: beranda.php');
-    exit;
-}
+
 
 // Load Laravel for all other routes
 require __DIR__.'/../vendor/autoload.php';

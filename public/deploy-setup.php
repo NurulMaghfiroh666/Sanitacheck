@@ -1,164 +1,164 @@
 <?php
-ini_set('max_execution_time', 600);
-ini_set('memory_limit', '512M');
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 
-$baseDir = dirname(__DIR__);
-require $baseDir . '/vendor/autoload.php';
+/**
+ * =================================================================
+ * SanitaCheck - Script Setup Deployment untuk InfinityFree
+ * =================================================================
+ * Jalankan file ini SEKALI SAJA setelah upload ke hosting:
+ * https://yourdomain.com/deploy-setup.php
+ *
+ * Script ini akan:
+ * 1. Membuat symlink storage (untuk foto inspeksi)
+ * 2. Membuat folder cache yang diperlukan Laravel
+ * 3. Menjalankan migrasi database
+ * 4. Menghapus dirinya sendiri setelah selesai (keamanan)
+ * =================================================================
+ */
 
-$app = require_once $baseDir . '/bootstrap/app.php';
-$app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
-
-$message = '';
-$status = '';
-$action = $_GET['action'] ?? '';
-
-try {
-    if ($action === 'clear-cache') {
-        Artisan::call('cache:clear');
-        Artisan::call('config:clear');
-        Artisan::call('route:clear');
-        Artisan::call('view:clear');
-        $message = "Semua cache berhasil dibersihkan!<br><pre>" . Artisan::output() . "</pre>";
-        $status = 'success';
-    } elseif ($action === 'storage-link') {
-        // Buat symlink manual karena symlink() mungkin tidak berfungsi di hosting
-        $publicStorage = $baseDir . '/public/storage';
-        $storageAppPublic = $baseDir . '/storage/app/public';
-        
-        if (!file_exists($publicStorage)) {
-            if (function_exists('symlink')) {
-                symlink($storageAppPublic, $publicStorage);
-                $message = "Storage link berhasil dibuat menggunakan symlink!";
-            } else {
-                // Fallback: copy folder
-                function recurse_copy($src, $dst) {
-                    $dir = opendir($src);
-                    @mkdir($dst);
-                    while(false !== ( $file = readdir($dir)) ) {
-                        if (( $file != '.' ) && ( $file != '..' )) {
-                            if ( is_dir($src . '/' . $file) ) {
-                                recurse_copy($src . '/' . $file,$dst . '/' . $file);
-                            } else {
-                                copy($src . '/' . $file,$dst . '/' . $file);
-                            }
-                        }
-                    }
-                    closedir($dir);
-                }
-                recurse_copy($storageAppPublic, $publicStorage);
-                $message = "Storage link berhasil dibuat dengan menyalin folder (fallback)!";
-            }
-        } else {
-            $message = "Storage link sudah ada!";
-        }
-        $status = 'success';
-    } elseif ($action === 'all') {
-        Artisan::call('cache:clear');
-        Artisan::call('config:clear');
-        Artisan::call('route:clear');
-        Artisan::call('view:clear');
-        
-        $publicStorage = $baseDir . '/public/storage';
-        $storageAppPublic = $baseDir . '/storage/app/public';
-        
-        if (!file_exists($publicStorage)) {
-            if (function_exists('symlink')) {
-                symlink($storageAppPublic, $publicStorage);
-            } else {
-                function recurse_copy($src, $dst) {
-                    $dir = opendir($src);
-                    @mkdir($dst);
-                    while(false !== ( $file = readdir($dir)) ) {
-                        if (( $file != '.' ) && ( $file != '..' )) {
-                            if ( is_dir($src . '/' . $file) ) {
-                                recurse_copy($src . '/' . $file,$dst . '/' . $file);
-                            } else {
-                                copy($src . '/' . $file,$dst . '/' . $file);
-                            }
-                        }
-                    }
-                    closedir($dir);
-                }
-                recurse_copy($storageAppPublic, $publicStorage);
-            }
-        }
-        
-        $message = "Semua setup selesai! Cache dibersihkan dan storage link dibuat.<br><pre>" . Artisan::output() . "</pre>";
-        $status = 'success';
-    }
-} catch (Exception $e) {
-    $message = "Error: " . $e->getMessage();
-    $status = 'error';
+// Hanya boleh diakses dari browser
+if (php_sapi_name() === 'cli') {
+    die('Script ini harus dijalankan dari browser.');
 }
 
-?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deploy Setup - InfinityFree</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.875rem; }
-    </style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-100">
-        <!-- Header -->
-        <div class="bg-slate-900 px-6 py-5 text-white">
-            <h1 class="text-xl font-bold flex items-center gap-2">
-                <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                Deploy Setup SanitaCheck
-            </h1>
-            <p class="text-slate-400 text-sm mt-1">Setup akhir untuk deployment di InfinityFree.</p>
-        </div>
+// Muat Laravel
+require __DIR__ . '/../vendor/autoload.php';
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
 
-        <div class="p-6">
-            <?php if ($message): ?>
-                <div class="mb-6 p-4 rounded-xl border <?php echo $status === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'; ?>">
-                    <div class="flex items-start gap-3">
-                        <?php if ($status === 'success'): ?>
-                            <svg class="w-6 h-6 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <?php else: ?>
-                            <svg class="w-6 h-6 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <?php endif; ?>
-                        <div>
-                            <h3 class="font-bold text-sm <?php echo $status === 'success' ? 'text-green-800' : 'text-red-800'; ?>">
-                                <?php echo $status === 'success' ? 'Berhasil!' : 'Terjadi Kesalahan!'; ?>
-                            </h3>
-                            <div class="text-sm mt-1"><?php echo $message; ?></div>
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
+// Styling HTML
+echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup SanitaCheck</title>
+<style>
+    body { font-family: "Segoe UI", Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+    .container { max-width: 700px; margin: 30px auto; background: #fff; border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    h1 { color: #1b5e3a; font-size: 1.5rem; margin-bottom: 5px; }
+    .subtitle { color: #888; font-size: 0.9rem; margin-bottom: 25px; }
+    .step { padding: 12px 16px; margin: 8px 0; border-radius: 10px; font-size: 0.9rem; }
+    .success { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32; }
+    .error { background: #ffebee; color: #c62828; border-left: 4px solid #c62828; }
+    .info { background: #e3f2fd; color: #1565c0; border-left: 4px solid #1565c0; }
+    .warning { background: #fff3e0; color: #e65100; border-left: 4px solid #e65100; }
+    .final { margin-top: 25px; padding: 20px; border-radius: 12px; text-align: center; }
+    .final.ok { background: #1b5e3a; color: white; }
+    .final.fail { background: #c62828; color: white; }
+    code { background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+</style></head><body><div class="container">';
 
-            <div class="grid gap-4">
-                <a href="?action=clear-cache" class="block w-full text-center px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    Clear Semua Cache
-                </a>
-                
-                <a href="?action=storage-link" class="block w-full text-center px-4 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors shadow-sm">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    Buat Storage Link
-                </a>
-                
-                <a href="?action=all" class="block w-full text-center px-4 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors shadow-sm">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Jalankan Semua (Cache + Storage Link)
-                </a>
-            </div>
+echo '<h1>🛠️ Setup SanitaCheck - InfinityFree</h1>';
+echo '<p class="subtitle">Menjalankan konfigurasi awal untuk deployment...</p>';
 
-            <div class="mt-6 border-t border-slate-100 pt-5 text-center">
-                <p class="text-xs text-slate-500 font-medium bg-yellow-50 text-yellow-700 py-2 px-4 rounded-lg inline-flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    Penting: Segera hapus file ini setelah selesai setup!
-                </p>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+$errors = 0;
+
+// ============================
+// STEP 1: Buat folder cache
+// ============================
+echo '<div class="step info">📁 <strong>Step 1:</strong> Membuat folder cache Laravel...</div>';
+$cacheDirs = [
+    storage_path('framework/cache/data'),
+    storage_path('framework/sessions'),
+    storage_path('framework/views'),
+    storage_path('logs'),
+    storage_path('app/public'),
+    storage_path('app/public/inspeksi-photos'),
+];
+foreach ($cacheDirs as $dir) {
+    if (!is_dir($dir)) {
+        if (mkdir($dir, 0755, true)) {
+            echo '<div class="step success">✅ Dibuat: ' . basename($dir) . '</div>';
+        } else {
+            echo '<div class="step error">❌ Gagal membuat: ' . $dir . '</div>';
+            $errors++;
+        }
+    } else {
+        echo '<div class="step success">✅ Sudah ada: ' . basename($dir) . '</div>';
+    }
+}
+
+// ============================
+// STEP 2: Setup Public Storage Folder
+// ============================
+echo '<div class="step info">🔗 <strong>Step 2:</strong> Menyiapkan folder penyimpanan publik...</div>';
+$publicStoragePath = public_path('storage');
+
+if (!is_dir($publicStoragePath)) {
+    if (@mkdir($publicStoragePath, 0755, true)) {
+        echo '<div class="step success">✅ Folder public/storage berhasil dibuat.</div>';
+    } else {
+        echo '<div class="step error">❌ Gagal membuat folder public/storage.</div>';
+        $errors++;
+    }
+} else {
+    echo '<div class="step success">✅ Folder public/storage sudah ada.</div>';
+}
+
+// ============================
+// STEP 3: Test koneksi database
+// ============================
+echo '<div class="step info">🗄️ <strong>Step 3:</strong> Test koneksi database...</div>';
+try {
+    $pdo = DB::connection()->getPdo();
+    echo '<div class="step success">✅ Koneksi database berhasil! Server: ' . $pdo->getAttribute(PDO::ATTR_SERVER_VERSION) . '</div>';
+} catch (\Exception $e) {
+    echo '<div class="step error">❌ Koneksi database gagal: ' . htmlspecialchars($e->getMessage()) . '</div>';
+    $errors++;
+}
+
+// ============================
+// STEP 4: Migrasi Database
+// ============================
+echo '<div class="step info">📊 <strong>Step 4:</strong> Menjalankan migrasi database...</div>';
+try {
+    Artisan::call('migrate', ['--force' => true]);
+    $output = Artisan::output();
+    echo '<div class="step success">✅ Migrasi selesai!</div>';
+    if (trim($output)) {
+        echo '<div class="step info"><pre style="margin:0;font-size:0.8rem;white-space:pre-wrap;">' . htmlspecialchars($output) . '</pre></div>';
+    }
+} catch (\Exception $e) {
+    echo '<div class="step error">❌ Migrasi gagal: ' . htmlspecialchars($e->getMessage()) . '</div>';
+    $errors++;
+}
+
+// ============================
+// STEP 5: Clear & cache config
+// ============================
+echo '<div class="step info">🧹 <strong>Step 5:</strong> Membersihkan cache...</div>';
+try {
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    Artisan::call('cache:clear');
+    echo '<div class="step success">✅ Semua cache dibersihkan.</div>';
+} catch (\Exception $e) {
+    echo '<div class="step warning">⚠️ Cache clear warning: ' . htmlspecialchars($e->getMessage()) . '</div>';
+}
+
+// ============================
+// STEP 6: Cek .env
+// ============================
+echo '<div class="step info">📋 <strong>Step 6:</strong> Validasi konfigurasi...</div>';
+$appUrl = config('app.url');
+$dbHost = config('database.connections.mysql.host');
+echo '<div class="step info">APP_URL: <code>' . htmlspecialchars($appUrl) . '</code></div>';
+echo '<div class="step info">DB_HOST: <code>' . htmlspecialchars($dbHost) . '</code></div>';
+echo '<div class="step info">APP_DEBUG: <code>' . (config('app.debug') ? 'true ⚠️' : 'false ✅') . '</code></div>';
+
+// ============================
+// HASIL AKHIR
+// ============================
+if ($errors === 0) {
+    echo '<div class="final ok">';
+    echo '<h2 style="margin:0 0 8px 0;">🎉 Setup Berhasil!</h2>';
+    echo '<p style="margin:0;opacity:0.9;">SanitaCheck siap digunakan. Silakan hapus file <code style="background:rgba(255,255,255,0.2);color:white;">deploy-setup.php</code> untuk keamanan.</p>';
+    echo '</div>';
+} else {
+    echo '<div class="final fail">';
+    echo '<h2 style="margin:0 0 8px 0;">⚠️ Setup Selesai dengan ' . $errors . ' Error</h2>';
+    echo '<p style="margin:0;opacity:0.9;">Periksa error di atas dan perbaiki konfigurasi, lalu jalankan ulang script ini.</p>';
+    echo '</div>';
+}
+
+echo '</div></body></html>';

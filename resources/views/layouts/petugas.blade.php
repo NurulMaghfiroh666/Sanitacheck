@@ -110,10 +110,15 @@
 <body>
 
     <!-- Top Navbar -->
-    <nav class="navbar fixed-top top-navbar">
+    <nav class="navbar fixed-top top-navbar py-2">
         <div class="container-fluid d-flex justify-content-center">
-            <span class="navbar-brand mb-0 h1 d-flex align-items-center">
-                <i class="bi bi-shield-check me-2"></i> SanitaCheck
+            <span class="navbar-brand mb-0 h1 d-flex align-items-center gap-2 m-0 p-0">
+                <img src="{{ asset('assets/image/logo-itsk.png') }}" alt="Logo ITSK" height="38" style="object-fit: contain;">
+                <img src="{{ asset('assets/image/logo-sanitacheck.png') }}" alt="Logo SanitaCheck" height="38" style="object-fit: contain;">
+                <div class="d-flex flex-column ms-2" style="line-height: 1.1;">
+                    <span class="fw-bold text-white" style="font-size: 1.1rem; letter-spacing: 0.5px;">SanitaCheck</span>
+                    <span class="text-white-50 fw-normal" style="font-size: 0.65rem; letter-spacing: 0.2px;">Kampus Sehat Terintegrasi</span>
+                </div>
             </span>
         </div>
     </nav>

@@ -80,6 +80,12 @@ class AdminDashboardController extends Controller
             ->with('fasilitas')
             ->get();
 
+        // Aktivitas Terbaru (Jadwal)
+        $aktivitasTerbaru = \App\Models\Jadwal::with(['petugas', 'fasilitas'])
+            ->orderBy('updated_at', 'desc')
+            ->take(5)
+            ->get();
+
         return view('admin.dashboard', compact(
             'totalFasilitas',
             'inspeksiHariIni',
@@ -88,7 +94,8 @@ class AdminDashboardController extends Controller
             'fasilitasTindakLanjut',
             'last7Days',
             'inspeksiCounts',
-            'masalahTerbanyak'
+            'masalahTerbanyak',
+            'aktivitasTerbaru'
         ));
     }
 }

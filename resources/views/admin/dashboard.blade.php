@@ -107,54 +107,50 @@
 
 <!-- Tables Row -->
 <div class="row g-2 mb-3">
-    <!-- Fasilitas Perlu Tindak Lanjut -->
+    <!-- Aktivitas Terbaru -->
     <div class="col-md-7">
         <div class="card h-100 border shadow-sm" style="border-radius: 8px;">
             <div class="card-body p-2">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="card-title text-success fw-bold mb-0" style="font-size: 0.85rem;">Fasilitas Perlu Tindak Lanjut</h6>
-                    <a href="/fasilitas-umum" class="btn btn-outline-success btn-sm fw-bold p-1 px-2" style="border-radius: 4px; font-size: 0.7rem;">Lihat Semua</a>
+                    <h6 class="card-title text-success fw-bold mb-0" style="font-size: 0.85rem;">Aktivitas Terbaru</h6>
+                    <a href="/inspeksi-sanitasi" class="btn btn-outline-success btn-sm fw-bold p-1 px-2" style="border-radius: 4px; font-size: 0.7rem;">Lihat Semua</a>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-sm table-borderless table-hover align-middle mb-0" style="font-size: 0.75rem;">
                         <thead class="text-success" style="border-bottom: 1px solid var(--cui-border-color); background-color: var(--cui-tertiary-bg);">
                             <tr>
-                                <th class="text-center py-1">No</th>
-                                <th class="py-1">Nama Fasilitas & Lokasi</th>
+                                <th class="py-1">Waktu</th>
+                                <th class="py-1">Petugas & Tugas</th>
                                 <th class="text-center py-1">Status</th>
-                                <th class="text-center py-1">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($fasilitasTindakLanjut as $index => $ft)
+                            @forelse($aktivitasTerbaru as $aktivitas)
                             <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-                                <td class="text-center text-body-secondary py-1">{{ $index + 1 }}</td>
+                                <td class="py-1 text-body-secondary" style="font-size: 0.7rem; white-space: nowrap;">
+                                    {{ \Carbon\Carbon::parse($aktivitas->updated_at)->diffForHumans() }}
+                                </td>
                                 <td class="py-1">
-                                    <div class="fw-bold text-body text-truncate" style="max-width: 150px;">{{ $ft->nama_fasilitas }}</div>
-                                    <div class="text-body-secondary text-truncate" style="max-width: 150px; font-size: 0.65rem;">{{ $ft->lokasi }}</div>
+                                    <div class="fw-bold text-body text-truncate" style="max-width: 150px;">{{ $aktivitas->petugas->nama_petugas ?? 'Petugas Terhapus' }}</div>
+                                    <div class="text-body-secondary text-truncate" style="max-width: 200px; font-size: 0.65rem;">
+                                        {{ $aktivitas->jenis_tugas }} - {{ $aktivitas->fasilitas->nama_fasilitas ?? 'Fasilitas Terhapus' }}
+                                    </div>
                                 </td>
                                 <td class="text-center py-1">
-                                    @if($ft->status_badge == 'buruk')
-                                        <span class="badge bg-danger" style="font-size: 0.65rem;">Buruk</span>
-                                    @elseif($ft->status_badge == 'perlu_perhatian')
-                                        <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">Perlu Perhatian</span>
-                                    @elseif($ft->status_badge == 'perlu_dibersihkan')
-                                        <span class="badge text-white" style="background-color: #fd7e14; font-size: 0.65rem;">Perlu Dibersihkan</span>
-                                    @elseif($ft->status_badge == 'belum_diinspeksi')
-                                        <span class="badge bg-secondary" style="font-size: 0.65rem;">Belum Diinspeksi</span>
+                                    @if($aktivitas->status == 'Selesai')
+                                        <span class="badge bg-success bg-opacity-10 text-success" style="font-size: 0.65rem;">Selesai</span>
+                                    @elseif($aktivitas->status == 'Berlangsung')
+                                        <span class="badge bg-primary bg-opacity-10 text-primary" style="font-size: 0.65rem;">Berlangsung</span>
+                                    @elseif($aktivitas->status == 'Dibatalkan')
+                                        <span class="badge bg-danger bg-opacity-10 text-danger" style="font-size: 0.65rem;">Dibatalkan</span>
                                     @else
-                                        <span class="badge bg-secondary" style="font-size: 0.65rem;">Unknown</span>
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary" style="font-size: 0.65rem;">Menunggu</span>
                                     @endif
-                                </td>
-                                <td class="text-center py-1">
-                                    <a href="/fasilitas-umum" class="btn btn-sm btn-light border p-1" title="Detail">
-                                        <svg style="width: 12px; height: 12px; color: #1b5e3a;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 120C114.6 120 16 237.3 16 256s98.6 136 240 136 240-117.3 240-136-98.6-136-240-136zm0 224c-48.6 0-88-39.4-88-88s39.4-88 88-88 88 39.4 88 88-39.4 88-88 88z"/><circle fill="currentColor" cx="256" cy="256" r="48"/></svg>
-                                    </a>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="4" class="text-center text-body-secondary py-3">Semua fasilitas dalam kondisi baik!</td>
+                                <td colspan="3" class="text-center text-body-secondary py-3">Belum ada aktivitas terbaru.</td>
                             </tr>
                             @endforelse
                         </tbody>

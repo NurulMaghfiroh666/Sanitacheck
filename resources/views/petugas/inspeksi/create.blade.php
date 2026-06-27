@@ -113,7 +113,7 @@
     <h5 class="mb-0 fw-bold text-dark">Form Inspeksi Sanitasi</h5>
 </div>
 
-<form action="{{ route('petugas.inspeksi.store') }}" method="POST">
+<form action="{{ route('petugas.inspeksi.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
     <input type="hidden" name="fasilitas_id" value="{{ $fasilitas->id }}">
 
@@ -128,6 +128,24 @@
         <div>
             <label class="form-label small text-secondary fw-semibold mb-1">Lokasi</label>
             <input type="text" class="form-control bg-light" value="{{ $fasilitas->lokasi }}" readonly>
+        </div>
+    </div>
+
+    <!-- Upload Foto Inspeksi -->
+    <div class="card card-form p-3 mb-3">
+        <div class="section-title">Bukti Foto Inspeksi</div>
+        <div class="mb-2">
+            <label class="form-label fw-bold d-block mb-2">Upload Foto <span class="text-danger">*</span></label>
+            <input class="form-control" type="file" name="foto" id="foto" accept="image/jpeg,image/png,image/jpg" required>
+            <div class="form-text">Format: JPG/PNG/JPEG. Ukuran maksimal: 3 MB.</div>
+            @error('foto')
+                <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle"></i> {{ $message }}</div>
+            @enderror
+            
+            <div class="mt-3 text-center d-none" id="preview-container">
+                <p class="small text-secondary mb-1">Preview Foto:</p>
+                <img id="image-preview" src="#" alt="Preview" class="img-fluid rounded" style="max-height: 200px; object-fit: contain;">
+            </div>
         </div>
     </div>
 
@@ -247,4 +265,33 @@
         </button>
     </div>
 </form>
+
+@push('scripts')
+<script>
+    document.getElementById('foto').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const previewContainer = document.getElementById('preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        
+        if (file) {
+            // Validasi ukuran max 3MB di front-end
+            if (file.size > 3 * 1024 * 1024) {
+                alert('Ukuran file terlalu besar! Maksimal 3 MB.');
+                this.value = '';
+                previewContainer.classList.add('d-none');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                previewContainer.classList.remove('d-none');
+            }
+            reader.readAsDataURL(file);
+        } else {
+            previewContainer.classList.add('d-none');
+        }
+    });
+</script>
+@endpush
 @endsection

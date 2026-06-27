@@ -76,20 +76,18 @@
 <div class="row">
     @foreach($jadwal->photos as $photo)
     <div class="col-md-4 mb-3">
-        <div class="card border shadow-sm" style="border-radius: 12px;">
-            <img src="{{ asset('storage/' . $photo->foto_path) }}" alt="Foto Inspeksi" class="card-img-top" style="height: 200px; object-fit: cover; border-radius: 12px 12px 0 0;">
-            <div class="card-body p-3">
+        <div class="card border shadow-sm h-100" style="border-radius: 12px;">
+            <img src="{{ asset('storage/' . $photo->foto_path) }}" alt="Foto Inspeksi" class="card-img-top" style="height: 200px; object-fit: cover; border-radius: 12px 12px 0 0; cursor: pointer;" onclick="openPreview('{{ asset('storage/' . $photo->foto_path) }}')">
+            <div class="card-body p-3 d-flex flex-column">
                 @if($photo->keterangan)
                 <div class="small mb-2" style="color: #333;">{{ $photo->keterangan }}</div>
                 @endif
-                <div class="small text-body-secondary mb-2">{{ $photo->created_at->format('d/m/Y H:i') }}</div>
-                <form action="{{ route('petugas.delete-foto', $photo->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus foto ini?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-sm btn-outline-danger w-100" style="border-radius: 6px;">
+                <div class="small text-body-secondary mb-3">{{ $photo->created_at->format('d/m/Y H:i') }}</div>
+                <div class="mt-auto">
+                    <button type="button" class="btn btn-sm btn-outline-danger w-100" style="border-radius: 6px;" onclick="confirmDeleteFoto('{{ route('petugas.delete-foto', $photo->id) }}')">
                         <i class="bi bi-trash me-1"></i> Hapus
                     </button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -97,4 +95,65 @@
 </div>
 @endif
 
+<!-- Modal Konfirmasi Hapus Foto -->
+<div class="modal fade" id="modalConfirmDeleteFoto" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content" style="border-radius: 16px; border: none;">
+            <div class="modal-body text-center p-4">
+                <div class="text-danger mb-3">
+                    <i class="bi bi-exclamation-circle-fill" style="font-size: 3.5rem;"></i>
+                </div>
+                <h6 class="fw-bold mb-2">Hapus Foto?</h6>
+                <p class="text-body-secondary small mb-4">Foto ini akan dihapus permanen dan tidak bisa dikembalikan.</p>
+                <form id="formDeleteFoto" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light flex-grow-1" data-bs-dismiss="modal" style="border-radius: 8px; font-size: 0.85rem; font-weight: 600;">Batal</button>
+                        <button type="submit" class="btn btn-danger flex-grow-1" style="border-radius: 8px; font-size: 0.85rem; font-weight: 600;">Ya, Hapus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Preview Foto (Lightbox) -->
+<div class="modal fade" id="modalPreviewFoto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0 pb-0 justify-content-end">
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <img id="previewImage" src="" class="img-fluid rounded shadow" style="max-height: 80vh;" alt="Preview Foto">
+                <div class="mt-3">
+                    <a id="downloadImageBtn" href="" download class="btn btn-primary" style="border-radius: 8px; font-weight: 600;">
+                        <i class="bi bi-download me-1"></i> Download Foto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+    // Preview image
+    function openPreview(src) {
+        document.getElementById('previewImage').src = src;
+        document.getElementById('downloadImageBtn').href = src;
+        var modal = new bootstrap.Modal(document.getElementById('modalPreviewFoto'));
+        modal.show();
+    }
+    
+    // Konfirmasi Hapus Foto
+    function confirmDeleteFoto(url) {
+        document.getElementById('formDeleteFoto').action = url;
+        var modal = new bootstrap.Modal(document.getElementById('modalConfirmDeleteFoto'));
+        modal.show();
+    }
+</script>
+@endpush

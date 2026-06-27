@@ -120,7 +120,7 @@
                         <td class="text-body-secondary small py-2" style="font-size: 0.75rem;">{{ \Carbon\Carbon::parse($item->tanggal_inspeksi)->format('d M Y') }}</td>
                         <td class="text-body-secondary small py-2" style="font-size: 0.75rem;">{{ \Carbon\Carbon::parse($item->updated_at)->format('d M Y') }}</td>
                         <td class="text-body-secondary small py-2">{{ \Carbon\Carbon::parse($item->tanggal_inspeksi)->diffInDays($item->updated_at) }} Hari</td>
-                        <td class="text-body-secondary small py-2">{{ $item->petugas->name ?? 'Admin' }}</td>
+                        <td class="text-body-secondary small py-2">{{ $item->petugas->nama_petugas ?? 'Admin' }}</td>
                         <td class="text-center py-2">
                             <span class="text-body-secondary fw-bold small">{{ $item->skor ?? '-' }}</span>
                         </td>

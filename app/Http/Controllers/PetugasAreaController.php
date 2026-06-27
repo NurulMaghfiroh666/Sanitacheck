@@ -107,7 +107,6 @@ class PetugasAreaController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input yang ketat dan aman dari injeksi
         $validated = $request->validate([
             'fasilitas_id'         => 'required|exists:fasilitas,id',
             'kondisi_kebersihan'   => 'required|in:baik,cukup,buruk,Baik,Cukup,Buruk',
@@ -116,6 +115,7 @@ class PetugasAreaController extends Controller
             'bau_tidak_sedap'      => 'required', // 1/0 atau Ya/Tidak
             'catatan'              => 'nullable|string|max:1000',
             'status_tindak_lanjut' => 'required|in:aman,perlu dibersihkan,perlu perbaikan,Aman,Menunggu,Selesai',
+            'foto'                 => 'required|image|mimes:jpeg,png,jpg|max:3072', // Max 3MB
         ]);
 
         try {
@@ -142,9 +142,9 @@ class PetugasAreaController extends Controller
             ];
             $statusTL = $statusMap[$statusTL] ?? $statusTL;
 
-            // Proses simpan data (Aman dari SQL Injection karena menggunakan Eloquent)
+            // Proses simpan data inspeksi
             $inspeksi = new Inspeksi();
-            $inspeksi->petugas_id = $userId;
+            $inspeksi->petugas_id = $petugas->id;
             $inspeksi->fasilitas_id = $validated['fasilitas_id'];
             $inspeksi->tanggal_inspeksi = now();
             $inspeksi->kondisi_kebersihan = $kondisi;
@@ -154,6 +154,29 @@ class PetugasAreaController extends Controller
             $inspeksi->catatan = $validated['catatan'];
             $inspeksi->status_tindak_lanjut = $statusTL;
             $inspeksi->save();
+
+            // Update status jadwal terkait menjadi 'Selesai'
+            $jadwal = Jadwal::where('petugas_id', $petugas->id)
+                ->where('fasilitas_id', $validated['fasilitas_id'])
+                ->whereIn('status', ['Menunggu', 'Berlangsung'])
+                ->first();
+            
+            if ($jadwal) {
+                $jadwal->status = 'Selesai';
+                $jadwal->save();
+
+                // Proses Upload Foto (hanya jika jadwal ditemukan agar terkait)
+                if ($request->hasFile('foto')) {
+                    $fotoPath = $request->file('foto')->store('inspeksi-photos', 'public');
+                    
+                    \App\Models\InspeksiPhoto::create([
+                        'jadwal_id' => $jadwal->id,
+                        'petugas_id' => $petugas->id,
+                        'foto_path' => $fotoPath,
+                        'keterangan' => 'Foto dikirim dari form inspeksi.'
+                    ]);
+                }
+            }
 
             // Flash message sukses
             return redirect()->route('petugas.riwayat')->with('success', 'Data inspeksi berhasil disimpan. Mantap, kerja bagus!');
