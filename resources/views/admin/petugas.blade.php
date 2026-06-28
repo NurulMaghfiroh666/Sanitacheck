@@ -77,7 +77,13 @@
                         </td>
                         <td class="text-center py-1 px-2">
                             <div class="btn-group btn-group-sm shadow-sm" role="group">
-                                <button type="button" class="btn btn-light border p-1" title="Edit">
+                                <button type="button" class="btn btn-light border p-1" title="Edit"
+                                    data-id="{{ $item->id }}"
+                                    data-nama="{{ $item->nama_petugas }}"
+                                    data-email="{{ $item->email }}"
+                                    data-nohp="{{ $item->no_hp }}"
+                                    data-status="{{ $item->status_aktif }}"
+                                    onclick="openEditModal(this)">
                                     <svg style="width: 12px; height: 12px; color: #0d6efd;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 5.4 506.5s12.5 12.3 21.2 12.3h120.3c10.9 0 21.4-4.3 29.2-12l233.4-233.4L291.7 90.3z"/></svg>
                                 </button>
                                 <button type="button" class="btn btn-light border p-1" title="Hapus" onclick="confirmDelete('{{ route('petugas.destroy', $item->id) }}')">
@@ -132,4 +138,65 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="editPetugasModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
+      <div class="modal-header border-bottom-0 pb-0">
+        <h5 class="modal-title fw-bold" style="color: #1b5e3a;">Edit Petugas</h5>
+        <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editPetugasForm" action="" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="modal-body text-start">
+            <div class="mb-3">
+                <label class="form-label small fw-bold mb-1" style="color: #1b5e3a;">Nama Petugas</label>
+                <input type="text" name="nama_petugas" id="edit_nama_petugas" class="form-control" placeholder="Masukkan nama lengkap" required style="border-radius: 6px;">
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-bold mb-1" style="color: #1b5e3a;">Email</label>
+                <input type="email" name="email" id="edit_email" class="form-control" placeholder="contoh@email.com" required style="border-radius: 6px;">
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-bold mb-1" style="color: #1b5e3a;">No. HP</label>
+                <input type="text" name="no_hp" id="edit_no_hp" class="form-control" placeholder="08xxxxxxxxxx" required style="border-radius: 6px;">
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-bold mb-1" style="color: #1b5e3a;">Status</label>
+                <select name="status_aktif" id="edit_status_aktif" class="form-select" required style="border-radius: 6px;">
+                    <option value="1">Aktif</option>
+                    <option value="0">Nonaktif</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer border-top-0 pt-0">
+            <button type="button" class="btn btn-outline-secondary btn-sm fw-bold" data-coreui-dismiss="modal" style="border-radius: 6px;">Batal</button>
+            <button type="submit" class="btn btn-success btn-sm fw-bold shadow-sm" style="border-radius: 6px; background-color: #1b5e3a; border-color: #1b5e3a;">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@push('scripts')
+<script>
+function openEditModal(btn) {
+    var id = btn.getAttribute('data-id');
+    var nama = btn.getAttribute('data-nama');
+    var email = btn.getAttribute('data-email');
+    var nohp = btn.getAttribute('data-nohp');
+    var status = btn.getAttribute('data-status');
+
+    document.getElementById('editPetugasForm').action = '{{ url('petugas') }}/' + id;
+    document.getElementById('edit_nama_petugas').value = nama;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_no_hp').value = nohp;
+    document.getElementById('edit_status_aktif').value = status;
+
+    var modal = new coreui.Modal(document.getElementById('editPetugasModal'));
+    modal.show();
+}
+</script>
+@endpush
 @endsection

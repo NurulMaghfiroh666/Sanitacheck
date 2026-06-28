@@ -12,7 +12,7 @@ class AdminJadwalPetugasController extends Controller
 {
     public function index()
     {
-        $jadwals = Jadwal::with(['petugas', 'fasilitas', 'photos'])->orderBy('created_at', 'desc')->get();
+        $jadwals = Jadwal::with(['petugas', 'fasilitas', 'photos'])->where('status', '!=', 'Dibatalkan')->orderBy('created_at', 'desc')->get();
         $petugas = Petugas::all();
         $fasilitas = Fasilitas::all();
         $totalPetugas = $petugas->count();
@@ -63,14 +63,20 @@ class AdminJadwalPetugasController extends Controller
     public function destroy($id)
     {
         $jadwal = Jadwal::findOrFail($id);
-        $jadwal->delete();
+        $jadwal->update(['status' => 'Dibatalkan']);
 
-        return redirect()->back()->with('success', 'Jadwal berhasil dihapus.');
+        return redirect()->back()->with('success', 'Jadwal berhasil dibatalkan.');
     }
 
     public function viewProgress($id)
     {
         $jadwal = Jadwal::with(['petugas', 'fasilitas', 'photos'])->findOrFail($id);
         return view('admin.jadwal-progress', compact('jadwal'));
+    }
+
+    public function show($id)
+    {
+        $jadwal = Jadwal::with(['petugas', 'fasilitas', 'photos'])->findOrFail($id);
+        return response()->json($jadwal);
     }
 }

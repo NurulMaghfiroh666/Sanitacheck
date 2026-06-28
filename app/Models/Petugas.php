@@ -12,7 +12,8 @@ class Petugas extends Model
         'email',
         'no_hp',
         'status_aktif',
-        'foto'
+        'foto',
+        'total_score'
     ];
 
     public function user()

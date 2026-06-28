@@ -7,7 +7,7 @@ use App\Http\Controllers\PetugasAreaController;
 use App\Http\Controllers\AdminInspeksiController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminLaporanController;
-use App\Http\Controllers\AdminRiwayatTindakLanjutController;
+use App\Http\Controllers\AdminRiwayatInspeksiController;
 use App\Http\Controllers\AdminJadwalPetugasController;
 use App\Http\Controllers\TugasInspeksiController;
 
@@ -49,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
     // Jadwal Petugas
     Route::get('/jadwal-petugas', [AdminJadwalPetugasController::class, 'index'])->name('jadwal-petugas.index');
     Route::post('/jadwal-petugas', [AdminJadwalPetugasController::class, 'store'])->name('jadwal-petugas.store');
+    Route::get('/jadwal-petugas/{id}', [AdminJadwalPetugasController::class, 'show'])->name('jadwal-petugas.show');
     Route::put('/jadwal-petugas/{id}/status', [AdminJadwalPetugasController::class, 'updateStatus'])->name('jadwal-petugas.updateStatus');
     Route::delete('/jadwal-petugas/{id}', [AdminJadwalPetugasController::class, 'destroy'])->name('jadwal-petugas.destroy');
     Route::get('/jadwal-petugas/{id}/progress', [AdminJadwalPetugasController::class, 'viewProgress'])->name('jadwal-petugas.progress');
@@ -56,11 +57,16 @@ Route::middleware(['auth'])->group(function () {
     // Rekap Laporan
     Route::get('/rekap-laporan', [AdminLaporanController::class, 'index'])->name('laporan.index');
 
+    // Laporan Keluhan Export
+    Route::get('/admin/laporan-keluhan/export-pdf', [AdminLaporanController::class, 'exportKeluhanPdf'])->name('laporan-keluhan.export-pdf');
+    Route::get('/admin/laporan-keluhan/export-excel', [AdminLaporanController::class, 'exportKeluhanExcel'])->name('laporan-keluhan.export-excel');
+    Route::get('/admin/laporan-keluhan/cetak', [AdminLaporanController::class, 'cetakKeluhan'])->name('laporan-keluhan.cetak');
+
     // Tindak Lanjut Action
     Route::put('/inspeksi-sanitasi/{id}/tindak-lanjut', [AdminInspeksiController::class, 'tindakLanjut'])->name('inspeksi.tindak-lanjut');
 
-    // Riwayat Tindak Lanjut
-    Route::get('/riwayat-tindak-lanjut', [AdminRiwayatTindakLanjutController::class, 'index'])->name('riwayat-tindak-lanjut.index');
+    // Riwayat Inspeksi & Jadwal Rutin
+    Route::get('/riwayat-inspeksi', [AdminRiwayatInspeksiController::class, 'index'])->name('riwayat-inspeksi.index');
 
     // Profil (statis — data user dari auth)
     Route::get('/profil', function () {
@@ -75,7 +81,13 @@ Route::middleware(['auth'])->group(function () {
     // Tugas Inspeksi (Admin)
     Route::get('/tugas-inspeksi', [TugasInspeksiController::class, 'index'])->name('tugas-inspeksi.index');
     Route::post('/tugas-inspeksi', [TugasInspeksiController::class, 'store'])->name('tugas-inspeksi.store');
+    Route::get('/tugas-inspeksi/{id}', [TugasInspeksiController::class, 'show'])->name('tugas-inspeksi.show');
     Route::put('/tugas-inspeksi/{id}', [TugasInspeksiController::class, 'update'])->name('tugas-inspeksi.update');
+    Route::put('/tugas-inspeksi/{id}/complete', [TugasInspeksiController::class, 'complete'])->name('tugas-inspeksi.complete');
+    Route::put('/tugas-inspeksi/{id}/set-ketua', [TugasInspeksiController::class, 'setKetua'])->name('tugas-inspeksi.set-ketua');
+    Route::post('/tugas-inspeksi/{id}/submit-report', [TugasInspeksiController::class, 'submitReport'])->name('tugas-inspeksi.submit-report');
+    Route::put('/tugas-inspeksi/{id}/approve-report', [TugasInspeksiController::class, 'approveReport'])->name('tugas-inspeksi.approve-report');
+    Route::put('/tugas-inspeksi/{id}/reject-report', [TugasInspeksiController::class, 'rejectReport'])->name('tugas-inspeksi.reject-report');
     Route::delete('/tugas-inspeksi/{id}', [TugasInspeksiController::class, 'destroy'])->name('tugas-inspeksi.destroy');
 
 }); // Tutup middleware auth
@@ -105,4 +117,6 @@ Route::middleware(['auth', 'role:petugas'])->prefix('area-petugas')->name('petug
     Route::get('/tugas-inspeksi', [PetugasAreaController::class, 'tugasInspeksi'])->name('tugas-inspeksi');
     Route::post('/tugas-inspeksi/{id}/join', [PetugasAreaController::class, 'joinTugas'])->name('tugas-inspeksi.join');
     Route::post('/tugas-inspeksi/{id}/leave', [PetugasAreaController::class, 'leaveTugas'])->name('tugas-inspeksi.leave');
+    Route::put('/tugas-inspeksi/{id}/set-ketua', [TugasInspeksiController::class, 'setKetua'])->name('tugas-inspeksi.set-ketua');
+    Route::post('/tugas-inspeksi/{id}/reset-voting', [TugasInspeksiController::class, 'resetVoting'])->name('tugas-inspeksi.reset-voting');
 });

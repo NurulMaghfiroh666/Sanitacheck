@@ -4,45 +4,6 @@ require_once 'services/api.php';
 // Semua data dari API / JSON lokal — tidak ada hardcoded mock
 $fasilitas = getFasilitas()['data'];
 $data_keluhan = getKeluhan()['data'];
-$peralatan_raw = getPeralatan()['data'];
-
-// Map nama peralatan ke Bootstrap Icon sebagai fallback saat API tidak mengembalikan field icon
-$peralatan_icon_map = [
-    'Sapu'               => 'bi-brush-fill',
-    'Pel'                => 'bi-droplet-half',
-    'Mop'                => 'bi-droplet-half',
-    'Vacuum Cleaner'     => 'bi-wind',
-    'Cart'               => 'bi-cart',
-    'Troli'              => 'bi-cart',
-    'Chemical Dispenser' => 'bi-box-seam',
-    'Ember'              => 'bi-bucket',
-    'Kain Lap'           => 'bi-layers',
-    'Sikat'              => 'bi-brush',
-    'Lap'                => 'bi-layers',
-    'Selang'             => 'bi-circle',
-    'Pompa'              => 'bi-arrow-up-circle',
-];
-
-// Pastikan setiap item peralatan memiliki icon
-$peralatan = [];
-foreach ($peralatan_raw as $item) {
-    if (empty($item['icon'])) {
-        // Cari berdasarkan nama exact
-        $item['icon'] = $peralatan_icon_map[$item['nama'] ?? ''] ?? null;
-        // Kalau masih kosong, coba partial match
-        if (!$item['icon']) {
-            foreach ($peralatan_icon_map as $key => $icon) {
-                if (stripos($item['nama'] ?? '', $key) !== false) {
-                    $item['icon'] = $icon;
-                    break;
-                }
-            }
-        }
-        // Ultimate fallback
-        if (!$item['icon']) $item['icon'] = 'bi-tools';
-    }
-    $peralatan[] = $item;
-}
 
 // Map facility name ke icon/color berdasarkan jenisnya
 $fasilitas_lookup = [];
@@ -373,9 +334,9 @@ foreach ($data_keluhan as $k) {
             </div>
         </form>
 
-        <!-- Dua Tabel: Aktivitas Terakhir & Peralatan Terdaftar -->
+        <!-- Tabel Aktivitas Terakhir -->
         <div class="row g-4 mb-4">
-            <div class="col-lg-6">
+            <div class="col-lg-12">
                 <div class="dashboard-card">
                     <h5 class="fw-bold mb-3" style="color: #1a5c38;">Aktivitas Terakhir</h5>
                     <div class="table-responsive">
@@ -406,41 +367,6 @@ foreach ($data_keluhan as $k) {
                                     <td><?= htmlspecialchars($item['masalah']) ?></td>
                                     <td><?= $item['tanggal'] ?></td>
                                     <td class="<?= $status_class ?>"><?= $item['status'] ?></td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="dashboard-card">
-                    <h5 class="fw-bold mb-3" style="color: #1a5c38;">Peralatan Terdaftar</h5>
-                    <div class="table-responsive">
-                        <table class="table table-custom align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Peralatan</th>
-                                    <th>Lokasi Simpan</th>
-                                    <th>Kondisi</th>
-                                    <th>Stok Sabun/Cairan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach($peralatan as $item): 
-                                    $kondisi_class = (strtolower($item['kondisi'] ?? '') == 'rusak') ? 'text-rusak' : 'text-baik';
-                                    $stok_class = (strtolower($item['stok'] ?? '') == 'menipis') ? 'text-rusak' : 'text-baik';
-                                ?>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi <?= $item['icon'] ?? 'bi-box' ?> text-secondary fs-5 me-2"></i>
-                                            <span class="fw-bold"><?= htmlspecialchars($item['nama'] ?? '') ?></span>
-                                        </div>
-                                    </td>
-                                    <td><span style="line-height: 1.2; display: inline-block;"><?= htmlspecialchars($item['lokasi'] ?? '') ?></span></td>
-                                    <td class="<?= $kondisi_class ?>"><?= htmlspecialchars($item['kondisi'] ?? '') ?></td>
-                                    <td class="<?= $stok_class ?>"><?= htmlspecialchars($item['stok'] ?? '') ?></td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -579,5 +505,65 @@ function resetCameraBox() {
     if (placeholder) placeholder.style.display = '';
     document.getElementById('foto').value = '';
 }
+
+// Form submission handler
+document.getElementById('form-lapor').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    var fasilitasId = document.getElementById('fasilitas').value;
+    var namaPelapor = document.getElementById('nama_pelapor').value;
+    var catatan = document.getElementById('catatan').value;
+    var persetujuan = document.getElementById('persetujuan').checked;
+    var fotoInput = document.getElementById('foto');
+    
+    if (!fasilitasId || !catatan || catatan.length < 10) {
+        alert('Mohon lengkapi semua field yang wajib diisi.');
+        return;
+    }
+    
+    if (!persetujuan) {
+        alert('Mohon setujui pernyataan kebenaran laporan.');
+        return;
+    }
+    
+    var btnSubmit = document.getElementById('btn-submit');
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mengirim...';
+    
+    var formData = new FormData();
+    formData.append('fasilitas_id', parseInt(fasilitasId));
+    formData.append('nama_pelapor', namaPelapor || 'Anonim');
+    formData.append('catatan', catatan);
+    
+    if (fotoInput.files.length > 0) {
+        formData.append('foto', fotoInput.files[0]);
+    }
+    
+    // Submit to local proxy
+    fetch('services/api.php?action=lapor', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="bi bi-send-fill me-2"></i>Kirim Laporan';
+        
+        if (data.status === 'success') {
+            document.getElementById('success-alert').style.display = 'block';
+            document.getElementById('success-alert').scrollIntoView({ behavior: 'smooth' });
+            // Reload page to show new data
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            alert('Gagal mengirim laporan: ' + (data.message || 'Terjadi kesalahan'));
+        }
+    })
+    .catch(error => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="bi bi-send-fill me-2"></i>Kirim Laporan';
+        console.error('Error:', error);
+        alert('Gagal mengirim laporan. Pastikan URL API sudah benar di services/api.php.');
+    });
+});
 </script>
 <?php include 'components/footer.php'; ?>

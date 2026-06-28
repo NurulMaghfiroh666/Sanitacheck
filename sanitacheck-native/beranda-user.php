@@ -1,10 +1,10 @@
 <?php
 require_once 'services/api.php';
 
-// Semua data dari API / JSON lokal — tidak ada hardcoded mock
+// Semua data dari API
 $stats = getStatistik();
 $response_fasilitas = getFasilitas();
-$semua_fasilitas = $response_fasilitas['data'];
+$semua_fasilitas = $response_fasilitas['data'] ?? [];
 $top_5 = array_slice($semua_fasilitas, 0, 5);
 
 // Fasilitas dengan masalah terbanyak: dihitung dari data keluhan
@@ -76,7 +76,7 @@ if (empty($masalah_terbanyak)) {
             padding-bottom: 80px;
             padding-top: 80px; /* Space for fixed navbar */
         }
-        
+
         .main-title {
             font-size: 3.8rem;
             font-weight: 800;
@@ -84,14 +84,66 @@ if (empty($masalah_terbanyak)) {
             margin-bottom: 1rem;
             text-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        
+
         .main-subtitle {
-            font-weight: 400; 
+            font-weight: 400;
             font-size: 1.2rem;
             opacity: 0.95;
             max-width: 800px;
             margin: 0 auto;
             line-height: 1.6;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .hero-section {
+                min-height: 380px;
+                padding-top: 100px;
+                padding-bottom: 60px;
+            }
+            .main-title {
+                font-size: 2.2rem;
+                margin-bottom: 0.75rem;
+            }
+            .main-subtitle {
+                font-size: 1rem;
+                max-width: 100%;
+            }
+            .content-container {
+                margin-top: -60px;
+            }
+            .stat-card {
+                padding: 18px;
+                border-radius: 10px;
+            }
+            .stat-icon {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-section {
+                min-height: 320px;
+                padding-top: 90px;
+                padding-bottom: 50px;
+            }
+            .main-title {
+                font-size: 1.8rem;
+                margin-bottom: 0.5rem;
+            }
+            .main-subtitle {
+                font-size: 0.9rem;
+            }
+            .content-container {
+                margin-top: -40px;
+            }
+            .stat-card {
+                padding: 15px;
+                border-radius: 8px;
+            }
+            .stat-icon {
+                font-size: 1.6rem;
+            }
         }
         
         .main-background {
@@ -488,7 +540,7 @@ if (empty($masalah_terbanyak)) {
                     </div>
                     <div>
                         <div class="stat-title">Total Fasilitas</div>
-                        <div class="stat-value"><?= count($semua_fasilitas) > 0 ? count($semua_fasilitas) : '25' ?></div>
+                        <div class="stat-value"><?= count($semua_fasilitas) ?></div>
                         <div class="stat-desc" style="color: rgba(255,255,255,0.8);">Semua fasilitas aktif</div>
                     </div>
                 </div>
@@ -502,8 +554,8 @@ if (empty($masalah_terbanyak)) {
                     </div>
                     <div>
                         <div class="stat-title text-dark-green">Inspeksi Hari Ini</div>
-                        <div class="stat-value text-dark-green"><?= $stats['inspeksi_hari_ini'] > 0 ? $stats['inspeksi_hari_ini'] : '8' ?></div>
-                        <div class="stat-desc text-muted">Dari total 25 fasilitas</div>
+                        <div class="stat-value text-dark-green"><?= $stats['inspeksi_hari_ini'] ?? 0 ?></div>
+                        <div class="stat-desc text-muted">Dari total <?= count($semua_fasilitas) ?> fasilitas</div>
                     </div>
                 </div>
             </div>
@@ -516,7 +568,7 @@ if (empty($masalah_terbanyak)) {
                     </div>
                     <div>
                         <div class="stat-title text-dark-green">Tindak Lanjut</div>
-                        <div class="stat-value text-dark-green"><?= $stats['perlu_tindak_lanjut'] > 0 ? $stats['perlu_tindak_lanjut'] : '6' ?></div>
+                        <div class="stat-value text-dark-green"><?= $stats['perlu_tindak_lanjut'] ?? 0 ?></div>
                         <div class="stat-desc text-muted">Perlu dibersihkan</div>
                     </div>
                 </div>
@@ -530,7 +582,7 @@ if (empty($masalah_terbanyak)) {
                     </div>
                     <div>
                         <div class="stat-title text-dark-green">Fasilitas Buruk</div>
-                        <div class="stat-value text-dark-green"><?= $stats['keluhan_diproses'] > 0 ? $stats['keluhan_diproses'] : '2' ?></div>
+                        <div class="stat-value text-dark-green"><?= $stats['keluhan_diproses'] ?? 0 ?></div>
                         <div class="stat-desc text-muted">Kondisi sanitasi buruk</div>
                     </div>
                 </div>

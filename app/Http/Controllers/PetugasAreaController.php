@@ -153,7 +153,14 @@ class PetugasAreaController extends Controller
             $inspeksi->bau_tidak_sedap = $bau;
             $inspeksi->catatan = $validated['catatan'];
             $inspeksi->status_tindak_lanjut = $statusTL;
+            
+            // Calculate and save score
+            $inspeksi->skor = $inspeksi->calculateNormalizedScore();
             $inspeksi->save();
+
+            // Update petugas total score
+            $petugas->total_score += $inspeksi->skor;
+            $petugas->save();
 
             // Update status jadwal terkait menjadi 'Selesai'
             $jadwal = Jadwal::where('petugas_id', $petugas->id)
@@ -372,20 +379,47 @@ class PetugasAreaController extends Controller
         
         // Get available tasks (not full and not completed)
         $tugasTersedia = TugasInspeksi::with(['fasilitas', 'users'])
-            ->where('status', '!=', 'selesai')
+            ->whereNotIn('status', ['selesai', 'dibatalkan'])
             ->latest()
             ->get();
         
-        // Get tasks joined by current user
+        // Get tasks joined by current user (Active/Pending/Rejected)
         $tugasSaya = TugasInspeksi::with(['fasilitas', 'users'])
             ->whereHas('users', function($q) use ($userId) {
                 $q->where('user_id', $userId);
             })
-            ->where('status', '!=', 'selesai')
+            ->where('status', '!=', 'dibatalkan')
+            ->where(function($q) {
+                $q->where('status', '!=', 'selesai')
+                  ->orWhere(function($sq) {
+                      $sq->where('status', 'selesai')
+                         ->whereIn('approval_status', ['pending', 'rejected']);
+                  });
+            })
             ->latest()
             ->get();
 
-        return view('petugas.tugas-inspeksi', compact('tugasTersedia', 'tugasSaya'));
+        // Get historical tasks (Completed and Approved)
+        $riwayatTugas = TugasInspeksi::with(['fasilitas', 'users'])
+            ->whereHas('users', function($q) use ($userId) {
+                $q->where('user_id', $userId);
+            })
+            ->where('status', 'selesai')
+            ->where('approval_status', 'approved')
+            ->latest()
+            ->get();
+
+        // Auto-fix any stuck tasks where voting is unanimous but ketua_id is not set
+        foreach ($tugasSaya as $tugas) {
+            if (!$tugas->ketua_id) {
+                $votingStatus = $tugas->voting_status;
+                if ($votingStatus['status'] === 'unanimous') {
+                    $tugas->update(['ketua_id' => $votingStatus['ketua_id']]);
+                }
+            }
+        }
+
+        return view('petugas.tugas-inspeksi', compact('tugasTersedia', 'tugasSaya', 'riwayatTugas'));
     }
 
     /**
@@ -441,5 +475,32 @@ class PetugasAreaController extends Controller
         }
         
         return back()->with('success', 'Berhasil keluar dari tugas inspeksi.');
+    }
+
+    /**
+     * Set ketua tim untuk tugas inspeksi
+     */
+    public function setKetuaTugas(Request $request, $tugasId)
+    {
+        $userId = Auth::id();
+        
+        $tugas = TugasInspeksi::findOrFail($tugasId);
+        
+        // Check if user is in the task
+        if (!$tugas->isUserJoined($userId)) {
+            return back()->with('error', 'Anda tidak bergabung dalam tugas ini.');
+        }
+        
+        $ketuaId = $request->input('ketua_id');
+        
+        // Check if the selected user is in the task
+        if (!$tugas->isUserJoined($ketuaId)) {
+            return back()->with('error', 'User yang dipilih tidak bergabung dalam tugas ini.');
+        }
+        
+        // Update ketua
+        $tugas->update(['ketua_id' => $ketuaId]);
+        
+        return back()->with('success', 'Berhasil menetapkan ketua tim.');
     }
 }

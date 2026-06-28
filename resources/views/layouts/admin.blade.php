@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-coreui-theme="light">
   <head>
     <base href="./">
     <meta charset="utf-8">
@@ -14,13 +14,14 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/admin/dist/assets/favicon/favicon-16x16.png') }}">
     
     <meta name="theme-color" content="#ffffff">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Vendors styles-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@6.3.3/dist/simplebar.min.css">
     <link rel="stylesheet" href="{{ asset('assets/admin/dist/css/vendors/simplebar.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Main styles for this application-->
     <link href="{{ asset('assets/admin/dist/css/style.css') }}" rel="stylesheet">
     <script src="{{ asset('assets/admin/dist/js/config.js') }}"></script>
-    <script src="{{ asset('assets/admin/dist/js/color-modes.js') }}"></script>
     
     @stack('styles')
   </head>
@@ -72,6 +73,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@coreui/coreui@5.6.1/dist/js/coreui.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/simplebar@6.3.3/dist/simplebar.min.js"></script>
     <script>
+      // Set current date in header
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const today = new Date();
+      const dateElement = document.getElementById('currentDate');
+      if (dateElement) {
+        dateElement.textContent = today.toLocaleDateString('id-ID', options);
+      }
+
       const header = document.querySelector("header.header");
       document.addEventListener("scroll", () => {
         if (header) {
@@ -83,6 +92,32 @@
         document.getElementById('deleteForm').action = url;
         var deleteModal = new coreui.Modal(document.getElementById('deleteConfirmModal'));
         deleteModal.show();
+      }
+
+      function confirmMarkComplete(url) {
+        if (confirm('Apakah Anda yakin ingin menandai tugas ini sebagai selesai?')) {
+          var form = document.createElement('form');
+          form.method = 'POST';
+          form.action = url;
+          
+          var csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+          if (csrfToken) {
+            var csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+          }
+          
+          var methodInput = document.createElement('input');
+          methodInput.type = 'hidden';
+          methodInput.name = '_method';
+          methodInput.value = 'PUT';
+          form.appendChild(methodInput);
+          
+          document.body.appendChild(form);
+          form.submit();
+        }
       }
     </script>
     @stack('scripts')

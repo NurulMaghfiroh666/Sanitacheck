@@ -57,4 +57,58 @@ class Inspeksi extends Model
     {
         return $this->belongsTo(Petugas::class, 'petugas_id');
     }
+
+    /**
+     * Calculate score based on inspection parameters
+     * Scoring logic:
+     * - Kondisi Kebersihan: Baik=100, Cukup=60, Buruk=20
+     * - Ketersediaan Air: Ada=25, Tidak Ada=0
+     * - Ketersediaan Sabun: Ada=25, Tidak Ada=0
+     * - Bau Tidak Sedap: Tidak=25, Ya=0
+     * Total max score: 175
+     */
+    public function calculateScore()
+    {
+        $score = 0;
+
+        // Kondisi Kebersihan (max 100)
+        switch ($this->kondisi_kebersihan) {
+            case 'Baik':
+                $score += 100;
+                break;
+            case 'Cukup':
+                $score += 60;
+                break;
+            case 'Buruk':
+                $score += 20;
+                break;
+        }
+
+        // Ketersediaan Air (max 25)
+        if ($this->ketersediaan_air) {
+            $score += 25;
+        }
+
+        // Ketersediaan Sabun (max 25)
+        if ($this->ketersediaan_sabun) {
+            $score += 25;
+        }
+
+        // Bau Tidak Sedap (max 25 - inverted, no bad smell is good)
+        if (!$this->bau_tidak_sedap) {
+            $score += 25;
+        }
+
+        return $score;
+    }
+
+    /**
+     * Calculate normalized score (0-100 scale)
+     */
+    public function calculateNormalizedScore()
+    {
+        $maxScore = 175;
+        $actualScore = $this->calculateScore();
+        return round(($actualScore / $maxScore) * 100);
+    }
 }

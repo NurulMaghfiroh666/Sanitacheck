@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->integer('kuota_tim')->default(1);
             $table->dateTime('tanggal_tugas');
-            $table->enum('status', ['tersedia', 'penuh', 'selesai'])->default('tersedia');
+            $table->enum('status', ['tersedia', 'penuh', 'selesai', 'dibatalkan'])->default('tersedia');
             $table->timestamps();
         });
     }

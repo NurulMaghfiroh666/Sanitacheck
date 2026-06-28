@@ -194,6 +194,8 @@
                             <span class="badge bg-primary" style="font-size: 0.7rem;">Berlangsung</span>
                             @elseif($jadwal->status == 'Selesai')
                             <span class="badge bg-success" style="font-size: 0.7rem;">Selesai</span>
+                            @elseif($jadwal->status == 'Dibatalkan')
+                            <span class="badge bg-danger" style="font-size: 0.7rem;">Dibatalkan</span>
                             @endif
                         </td>
                         <td class="py-3">

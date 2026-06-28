@@ -17,8 +17,15 @@ class AdminInspeksiController extends Controller
             $search = $request->input('search');
             $status = $request->input('status');
 
-            $jadwalQuery = Jadwal::with(['fasilitas', 'petugas']);
-            $tugasQuery = TugasInspeksi::with(['fasilitas', 'users']);
+            $jadwalQuery = Jadwal::with(['fasilitas', 'petugas'])->where('status', '!=', 'Dibatalkan');
+            $tugasQuery = TugasInspeksi::with(['fasilitas', 'users'])
+                ->where(function($q) {
+                    $q->whereIn('status', ['tersedia', 'penuh'])
+                      ->orWhere(function($sq) {
+                          $sq->where('status', 'selesai')
+                             ->whereIn('approval_status', ['pending', 'rejected']);
+                      });
+                });
 
             if ($search) {
                 $jadwalQuery->where(function($q) use ($search) {

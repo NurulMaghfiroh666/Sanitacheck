@@ -4,6 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\Fasilitas;
 use App\Models\Inspeksi;
+use App\Models\Laporan;
+
+// Apply CORS middleware to all API routes
+Route::middleware('cors')->group(function () {
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -54,7 +58,7 @@ Route::get('/statistik', function () {
 Route::get('/fasilitas', function () {
     $fasilitas = Fasilitas::with(['inspeksis' => function($q) {
         $q->latest('tanggal_inspeksi')->limit(1);
-    }])->where('status_aktif', true)->get();
+    }])->where('status_aktif', 1)->get();
 
     $data = $fasilitas->map(function ($item) {
         $lastInspeksi = $item->inspeksis->first();
@@ -198,7 +202,55 @@ Route::get('/fasilitas/{id}/inspeksi', function ($id) {
     ]);
 });
 
-// Enable CORS for API routes
-Route::middleware(['cors'])->group(function () {
-    // All API routes above are now CORS-enabled
+// API Endpoint untuk keluhan (laporan)
+Route::get('/keluhan', function () {
+    $laporans = Laporan::with('fasilitas')->latest()->get();
+    
+    $data = $laporans->map(function ($item) {
+        return [
+            'id' => $item->id,
+            'id_keluhan' => 'KLP-' . date('Y', strtotime($item->created_at)) . '-' . str_pad($item->id, 4, '0', STR_PAD_LEFT),
+            'fasilitas_id' => $item->fasilitas_id,
+            'fasilitas_nama' => $item->fasilitas ? $item->fasilitas->nama_fasilitas : '-',
+            'nama_pelapor' => $item->nama_pelapor ?? 'Anonim',
+            'catatan' => $item->catatan,
+            'status' => $item->status,
+            'created_at' => $item->created_at->format('Y-m-d H:i:s')
+        ];
+    });
+
+    return response()->json(['status' => 'success', 'data' => $data]);
 });
+
+Route::post('/keluhan', function (Request $request) {
+    $request->validate([
+        'fasilitas_id' => 'required|exists:fasilitas,id',
+        'catatan' => 'required|string',
+        'nama_pelapor' => 'nullable|string',
+        'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+    ]);
+
+    $fotoPath = null;
+    if ($request->hasFile('foto')) {
+        $file = $request->file('foto');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $file->move(public_path('uploads/keluhan'), $filename);
+        $fotoPath = 'uploads/keluhan/' . $filename;
+    }
+
+    $laporan = Laporan::create([
+        'fasilitas_id' => $request->fasilitas_id,
+        'nama_pelapor' => $request->nama_pelapor ?? 'Anonim',
+        'catatan' => $request->catatan,
+        'foto' => $fotoPath,
+        'status' => 'Menunggu'
+    ]);
+
+    return response()->json([
+        'status' => 'success', 
+        'message' => 'Laporan berhasil dikirim.',
+        'data' => $laporan
+    ]);
+});
+
+}); // Close CORS middleware group

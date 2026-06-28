@@ -81,7 +81,7 @@
             <table class="table table-sm table-borderless table-hover align-middle mb-0 current-theme-table">
                 <thead style="border-bottom: 1px solid var(--cui-border-color); background-color: var(--cui-tertiary-bg);">
                     <tr>
-                        <th class="text-center text-success py-1 px-3" style="font-size: 0.75rem;">No</th>
+                        <th class="text-center text-success py-1" style="font-size: 0.75rem;">No</th>
                         <th class="text-success py-1" style="font-size: 0.75rem;">Judul Tugas</th>
                         <th class="text-success py-1" style="font-size: 0.75rem;">Fasilitas</th>
                         <th class="text-success py-1" style="font-size: 0.75rem;">Tanggal Tugas</th>
@@ -117,10 +117,19 @@
                                 @elseif($tugas->status == 'penuh')
                                     <span class="badge bg-warning bg-opacity-10 text-warning">Penuh</span>
                                 @elseif($tugas->status == 'selesai')
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">Selesai</span>
+                                    @if($tugas->approval_status == 'pending')
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info">Selesai (Menunggu ACC)</span>
+                                    @else
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary">Selesai</span>
+                                    @endif
                                 @endif
                             </td>
                             <td class="text-center py-2 px-3" style="font-size: 0.8rem;">
+                                <button type="button" class="btn btn-sm btn-outline-info me-1" data-coreui-toggle="modal" data-coreui-target="#detailTugasModal{{ $tugas->id }}" style="border-radius: 4px;">
+                                    <svg class="icon" style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                        <path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216v64zm72-64h24V336H288V272zM160 336h24V272H160v64zm144-112H208c-8.8 0-16-7.2-16-16V128c0-8.8 7.2-16 16-16h96c8.8 0 16 7.2 16 16v80c0 8.8-7.2 16-16 16z"/>
+                                    </svg>
+                                </button>
                                 <button type="button" class="btn btn-sm btn-outline-primary me-1" data-coreui-toggle="modal" data-coreui-target="#editTugasModal{{ $tugas->id }}" style="border-radius: 4px;">
                                     <svg class="icon" style="width: 14px; height: 14px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                                         <path fill="currentColor" d="M362.7 19.3L314.3 67.7 444.3 197.7l48.4-48.4c25-25 25-65.5 0-90.5L453.3 19.3c-25-25-65.5-25-90.5 0zm-71 71L58.6 323.5c-10.4 10.4-18 23.3-22.2 37.4L1 481.2C-1.5 489.7 .8 498.8 5.4 506.5s12.5 12.3 21.2 12.3h120.3c10.9 0 21.4-4.3 29.2-12l233.4-233.4L291.7 90.3z"/>
@@ -253,4 +262,34 @@
 </div>
 @endforeach
 
+@include('admin.tugas-inspeksi-detail-modal')
+@section('scripts')
+@include('admin.tugas-inspeksi-js')
+<script>
+function confirmDelete(url) {
+    if (confirm('Apakah Anda yakin ingin menghapus tugas inspeksi ini?')) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = url;
+        
+        var csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (csrfToken) {
+            var csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+        }
+        
+        var methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
 @endsection
