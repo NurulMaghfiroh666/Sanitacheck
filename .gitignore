@@ -28,3 +28,10 @@ Thumbs.db
 # CoreUI Template Dependencies
 public/assets/admin/node_modules/
 public/assets/admin/.cache/
+
+# Deployment intermediates
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
