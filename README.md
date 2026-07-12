@@ -95,8 +95,8 @@ php artisan serve
 Setelah menjalankan perintah migrasi dan seeder (`php artisan migrate:fresh --seed`), Anda dapat login menggunakan akun demo berikut yang otomatis dibuat:
 
 **1. Akun Admin (Full Access)**
-- **Email:** `admin@sanitacheck.id`
-- **Password:** `password123`
+- **Username:** `admin`
+- **Password:** `admin123`
 
 **2. Akun Petugas**
 Login petugas menggunakan *username*:
