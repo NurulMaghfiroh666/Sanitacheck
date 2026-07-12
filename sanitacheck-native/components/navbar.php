@@ -48,9 +48,6 @@
 
       <!-- Aksi / Tombol (Responsif: Sejajar kiri di mobile, sejajar kanan di desktop) -->
       <div class="d-flex align-items-center gap-2 ms-lg-3 my-2 my-lg-0">
-        <a href="cetak-laporan.php" class="btn btn-sm btn-outline-light d-flex align-items-center" target="_blank" title="Cetak Laporan Rekap">
-          <i class="bi bi-printer-fill me-1"></i><span>Cetak Laporan</span>
-        </a>
         <button class="btn btn-sm btn-outline-light rounded-circle theme-toggle d-flex align-items-center justify-content-center" style="width: 31px; height: 31px;" id="themeToggle" title="Ganti tema" aria-label="Toggle theme">
           <i class="bi bi-moon-fill theme-icon" id="themeIcon"></i>
         </button>
